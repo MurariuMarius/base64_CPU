@@ -34,16 +34,16 @@ class AssemblyFileParser:
     def write(self, outputFile):
         with open(f'{PATH_TO_OUTPUT_DIRECTORY}/{outputFile}', "wb") as outputFile:
             for instruction in self.instructions:
-                outputFile.write(repr(instruction))
+                outputFile.write(instruction.getBytes())
 
     def __getLabels(self):
         for i in range(len(self.instructions)):
             label = self.lineParser.getLabel(self.instructions[i])
             if label:
-                if label in self.labels:
-                    raise LabelAlreadyDefinedException(label.strip(":"))
-                self.labels[label.strip(":")] = i
-                self.instructions[i][0] = label.strip(":")
+                if (label := label.strip(":")) in self.labels:
+                    raise LabelAlreadyDefinedException(label)
+                self.labels[label] = i
+                self.instructions[i][0] = label
 
 
 class LineParser:
@@ -51,7 +51,7 @@ class LineParser:
         self.labelPattern = "^[_a-z0-9]*:"
 
     def getInstruction(self, line, labels : dict):
-        if labels.get(line[0].strip(":")):
+        if labels.get(line[0]):
             line = line[1:]
 
         print(line)

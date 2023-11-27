@@ -6,8 +6,7 @@ if __name__ == "__main__":
         print("Usage: python3 main.py <asm file>")
         sys.exit(1)
 
-    count = 0
-
     fileParser = AssemblyFileParser(sys.argv[1])
     fileParser.parse()
-    fileParser.write('out.txt')
+    fileParser.write('out.bin')
+    

@@ -9,9 +9,7 @@ class Instruction:
         self.opcode = opcode
     
     def __repr__(self) -> str:
-        # return '\n{0:b}|'.format(self.opcode)
-        return f'\n{self.opcode}|'
-
+        return '\n{0:b}|'.format(self.opcode)
 
 class BranchInstruction(Instruction):
     def __init__(self, instruction, labels):
@@ -30,6 +28,10 @@ class BranchInstruction(Instruction):
     
     def __repr__(self) -> str:
         return super().__repr__() + f'{self.address}'
+    
+    def getBytes(self):
+        result = (self.opcode << 10) | (0x3FF & self.address)
+        return bytearray(result.to_bytes(2))
     
 
 class MemoryInstruction(Instruction):
@@ -50,7 +52,11 @@ class MemoryInstruction(Instruction):
 
     def __repr__(self) -> str:
         return super().__repr__() + f'{self.registerAddress}|{self.immediate}'
-
+    
+    def getBytes(self):
+        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1FF & self.immediate)
+        return bytearray(result.to_bytes(2))
+    
 
 class ALUInstruction(Instruction):
     def __init__(self, instruction):
@@ -69,3 +75,8 @@ class ALUInstruction(Instruction):
 
     def __repr__(self) -> str:
         return super().__repr__() + f"{self.registerAddress}|{self.immediate}"
+    
+    def getBytes(self):
+        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1FF & self.immediate)
+        return bytearray(result.to_bytes(2))
+    
