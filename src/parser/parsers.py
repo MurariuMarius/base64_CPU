@@ -2,6 +2,7 @@ import re
 
 from exceptions import LabelAlreadyDefinedException, InvalidInstructionException
 from instructions import BranchInstruction, MemoryInstruction, ALUInstruction
+from header import PATH_TO_OUTPUT_DIRECTORY
 import opcodes
 
 class AssemblyFileParser:
@@ -31,7 +32,7 @@ class AssemblyFileParser:
 
 
     def write(self, outputFile):
-        with open(outputFile, "w") as outputFile:
+        with open(f'{PATH_TO_OUTPUT_DIRECTORY}/{outputFile}', "wb") as outputFile:
             for instruction in self.instructions:
                 outputFile.write(repr(instruction))
 
@@ -77,7 +78,9 @@ class InstructionParser:
             instruction = BranchInstruction(instruction, labels)
         elif opcode.upper() in opcodes.memoryInstructions:
             instruction = MemoryInstruction(instruction)
+        elif opcode.upper() in opcodes.ALUInstructions:
+            instruction = ALUInstruction(instruction)
         else:
-            pass
-            # raise InvalidInstructionException(instruction)
+            raise InvalidInstructionException(instruction)
         return instruction
+    
