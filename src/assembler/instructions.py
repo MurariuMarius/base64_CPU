@@ -80,3 +80,10 @@ class ALUInstruction(Instruction):
         result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1FF & self.immediate)
         return bytearray(result.to_bytes(2))
     
+
+class HaltInstruction(Instruction):
+    def __init__(self):
+        super().__init__(HLT["HLT"])
+
+    def getBytes(self):
+        return bytearray((self.opcode << 10).to_bytes(2))

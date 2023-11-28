@@ -4,5 +4,3 @@ REGISTERS = {
 }
 
 MEMORY_SIZE = 512  # words, 2^9
-
-PATH_TO_OUTPUT_DIRECTORY = "../.."
