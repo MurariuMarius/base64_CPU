@@ -4,7 +4,13 @@ memoryInstructions = {
 }
 
 branchInstructions = {
-    "BRZ": 0b000100
+    "BRZ": 0b000100,
+    "BRN": 0b000101,
+    "BRC": 0b000110,
+    "BRO": 0b000111,
+    "BRA": 0b001000,
+    "JMP": 0b010000,
+    "RET": 0b010001,
 }
 
 ALUInstructions = {
