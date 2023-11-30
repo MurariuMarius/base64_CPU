@@ -41,7 +41,7 @@ class AssemblyFileParser:
             if label:
                 if (label := label.strip(":")) in self.labels:
                     raise LabelAlreadyDefinedException(label)
-                self.labels[label] = i
+                self.labels[label] = 2 * i
                 self.instructions[i][0] = label
 
 
