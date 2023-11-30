@@ -6,7 +6,15 @@
 
 static uint8_t instructionMemory[INSTRUCTION_MEMORY_SIZE];
 
+static uint6_t instructionRegister;
+static uint10_t addressRegister;
+
+static uint10_t Y0;
+static uint10_t Y1;
+
+static uint16_t extendSignFrom10To16(uint10_t input);
 static void writeToInstructionMemory(uint16_t word, int index);
+static void demux();
 
 void initializeInstructionMemory(char *binFile) {
     FILE *fp = fopen(binFile, "rb");
@@ -31,8 +39,33 @@ void initializeInstructionMemory(char *binFile) {
     fclose(fp);
 }
 
+uint16_t getAddressRegisterFromPC() {
+    demux(&Y0, &Y1);
+    return extendSignFrom10To16(Y0);
+}
+
+uint10_t getAddressRegisterFromRF() {
+    demux(&Y0, &Y1);
+    return Y1;
+}
+
 uint16_t readWordFromInstructionMemory(int index) {
-    return (uint16_t)((instructionMemory[index] << 8) | instructionMemory[index + 1]);
+    uint16_t instructionWord = (uint16_t)((instructionMemory[index] << 8) | instructionMemory[index + 1]);
+    instructionRegister = (uint6_t){((instructionWord & 0xFC00U) >> 10)};
+    addressRegister = (uint10_t){(instructionWord & 0x03FFU)};
+
+    printf("%04x %04x\n", getAddressRegisterFromPC(), getAddressRegisterFromRF().val);
+
+    return instructionWord;
+}
+
+
+static uint16_t extendSignFrom10To16(uint10_t input) {
+    uint16_t output = 0U | input.val;
+    for (uint8_t i = 15; i >= 10; i++) {
+        output |= (input.val & (1 << 9)) << i;
+    }
+    return output;
 }
 
 static void writeToInstructionMemory(uint16_t word, int index) {
@@ -44,4 +77,14 @@ static void writeToInstructionMemory(uint16_t word, int index) {
 
     instructionMemory[index] = (uint8_t)(word & 0x00FF);
     instructionMemory[index + 1] = (uint8_t)(word >> 8);
+}
+
+static void demux() {
+    if (branch_other.active) {
+        Y0 = addressRegister;
+        Y1 = (uint10_t){0};
+    } else {
+        Y0 = (uint10_t){0};
+        Y1 = addressRegister;
+    }
 }
