@@ -1,3 +1,4 @@
 src/assembler/__pycache__
 
 *.bin
+*.exe
