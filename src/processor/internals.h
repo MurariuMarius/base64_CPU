@@ -28,15 +28,22 @@ extern signal next;
 extern signal bra;
 extern signal jmp;
 extern signal branch_other;
+extern signal end;
 
 /*  INSTRUCTION MEMORY  */
 
 void initializeInstructionMemory(char *binFile);
 uint16_t readWordFromInstructionMemory(int index);
+uint10_t getAddressRegisterFromRF();
+uint16_t getAddressRegisterFromPC();
 
 /*  PROGRAM COUNTER  */
+void setPC();
+
+/*  CONTROL UNIT  */
+void CU_handleNextInstruction(uint6_t opCode);
 
 // void initializePC();
-void testExtendUnit(uint10_t in);
+// void testExtendUnit(uint10_t in);
 
 #endif

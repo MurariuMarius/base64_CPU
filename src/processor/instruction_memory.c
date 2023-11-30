@@ -51,10 +51,15 @@ uint10_t getAddressRegisterFromRF() {
 
 uint16_t readWordFromInstructionMemory(int index) {
     uint16_t instructionWord = (uint16_t)((instructionMemory[index] << 8) | instructionMemory[index + 1]);
+
+    printf("Instruction: %04x\n", instructionWord);
+
     instructionRegister = (uint6_t){((instructionWord & 0xFC00U) >> 10)};
     addressRegister = (uint10_t){(instructionWord & 0x03FFU)};
 
-    printf("%04x %04x\n", getAddressRegisterFromPC(), getAddressRegisterFromRF().val);
+    // printf("%04x %04x\n", getAddressRegisterFromPC(), getAddressRegisterFromRF().val);
+
+    CU_handleNextInstruction(instructionRegister);
 
     return instructionWord;
 }

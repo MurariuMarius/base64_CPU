@@ -14,11 +14,10 @@ int main(int argc, char **argv) {
 
     initializeInstructionMemory(argv[1]);
 
-    int PC = 0;
-
-    uint16_t instruction;
-    while((instruction = readWordFromInstructionMemory(PC)) != 0) {
-        printf("%04x\n", instruction);
-        PC += 2;
+    // Driver
+    while(1) {
+       next = ACTIVE;
+       setPC();
+       if (end.active) break;
     }
 }
