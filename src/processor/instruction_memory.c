@@ -13,7 +13,7 @@ static uint10_t Y0;
 static uint10_t Y1;
 
 static uint16_t extendSignFrom10To16(uint10_t input);
-static void writeToInstructionMemory(uint16_t word, int index);
+static void writeToInstructionMemory(uint16_t word, uint16_t index);
 static void demux();
 
 void initializeInstructionMemory(char *binFile) {
@@ -49,7 +49,7 @@ uint10_t getAddressRegisterFromRF() {
     return Y1;
 }
 
-uint16_t readWordFromInstructionMemory(int index) {
+uint16_t readWordFromInstructionMemory(uint16_t index) {
     uint16_t instructionWord = (uint16_t)((instructionMemory[index] << 8) | instructionMemory[index + 1]);
 
     printf("Instruction: %04x\n", instructionWord);
@@ -73,7 +73,7 @@ static uint16_t extendSignFrom10To16(uint10_t input) {
     return output;
 }
 
-static void writeToInstructionMemory(uint16_t word, int index) {
+static void writeToInstructionMemory(uint16_t word, uint16_t index) {
 
     /**
      * Assuming that the simulator's architecure has little endian ordering.
