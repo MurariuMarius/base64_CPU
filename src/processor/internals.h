@@ -16,6 +16,10 @@ typedef struct {
 } signal;
 
 typedef struct {
+    unsigned int val : 2;
+} uint2_t;
+
+typedef struct {
     unsigned int val : 6;
 } uint6_t;
 
@@ -34,6 +38,7 @@ extern signal bra;
 extern signal jmp;
 extern signal branch_other;
 extern signal end;
+extern uint2_t spOp;
 
 /*  INSTRUCTION MEMORY  */
 
@@ -49,8 +54,11 @@ void nextPC();
 void CU_handleNextInstruction(uint6_t opCode);
 
 /*  DATA MEMORY  */
-void store(uint16_t word, uint9_t index);
-uint16_t load(uint9_t index);
+void store(uint16_t word, uint16_t index);
+uint16_t load(uint16_t index);
+
+/*  STACK POINTER  */
+uint16_t SP_operation();
 
 // void initializePC();
 // void testExtendUnit(uint10_t in);

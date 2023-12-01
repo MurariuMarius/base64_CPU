@@ -4,10 +4,10 @@
 
 static uint16_t dataMemory[DATA_MEMORY_SIZE];
 
-void store(uint16_t word, uint9_t index) {
-    dataMemory[index.val] = word;
+void store(uint16_t word, uint16_t index) {
+    dataMemory[index] = word;
 }
 
-uint16_t load(uint9_t index) {
-    return dataMemory[index.val];
+uint16_t load(uint16_t index) {
+    return dataMemory[index];
 }
