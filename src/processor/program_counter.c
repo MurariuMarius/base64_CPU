@@ -12,7 +12,7 @@ uint16_t incrementPC() {
     return PC;
 }
 
-void setPC() {
+void nextPC() {
     readWordFromInstructionMemory(PC);
 
     uint16_t branchAddress = getAddressRegisterFromPC();

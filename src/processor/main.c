@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     // Driver
     while(1) {
        next = ACTIVE;
-       setPC();
+       nextPC();
        if (end.active) break;
     }
 }

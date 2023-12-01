@@ -38,7 +38,7 @@ uint10_t getAddressRegisterFromRF();
 uint16_t getAddressRegisterFromPC();
 
 /*  PROGRAM COUNTER  */
-void setPC();
+void nextPC();
 
 /*  CONTROL UNIT  */
 void CU_handleNextInstruction(uint6_t opCode);
