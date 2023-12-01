@@ -13,6 +13,11 @@ branchInstructions = {
     "RET": 0b010001,
 }
 
+stackInstructions = {
+    "PSH": 0b010010,
+    "POP": 0b010011
+}
+
 ALUInstructions = {
     "ADD": 0b100000,
     "SUB": 0b100001,

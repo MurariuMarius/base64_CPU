@@ -81,6 +81,27 @@ class ALUInstruction(Instruction):
         return bytearray(result.to_bytes(2))
     
 
+class StackInstruction(Instruction):
+    def __init__(self, instruction):
+        opcode, registerAddress = self.__validate(instruction)
+
+        super().__init__(stackInstructions.get(opcode.upper()))
+        self.registerAddress = registerAddress
+    
+    def __validate(self, instruction):
+        if len(instruction) != 2 or \
+            instruction[1].upper() not in REGISTERS:
+            raise InvalidInstructionException(instruction)
+        return instruction[0], REGISTERS[instruction[1].upper()]
+        
+    def __repr__(self) -> str:
+        return super().__repr__() + f"{self.registerAddress}"
+    
+    def getBytes(self):
+        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9)
+        return bytearray(result.to_bytes(2))
+
+
 class HaltInstruction(Instruction):
     def __init__(self):
         super().__init__(HLT["HLT"])

@@ -10,4 +10,6 @@ TST X, #6
 addr: BRZ _addr
 _addr: BRZ addr
 CMP Y #4
+PSH X
+PSH Y
 HLT

@@ -12,6 +12,9 @@
 #define JMP 0b010000
 #define RET 0b010001
 
+#define PSH 0b010010
+#define POP 0b010011
+
 #define ADD 0b100000
 #define SUB 0b100001
 #define LSR 0b100010
