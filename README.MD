@@ -1,7 +1,7 @@
 # Base64 Encoding CPU
 
 This program simulates an application-specific instruction set processor (ASIP) that **encodes plaintext into base64**.\
-Additionaly, the simulated CPU is fitted with general-purpose functionality such as **memory, branching** and various **ALU operations**.
+Additionaly, the simulated CPU is fitted with general-purpose functionality such as **memory, branching, stack** and various **ALU operations**.
 
 ## The assembler
 - translates the applicaton-specific instructions into a binary executable file;
