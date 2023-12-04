@@ -85,7 +85,7 @@ static void writeToInstructionMemory(uint16_t word, uint16_t index) {
 }
 
 static void demux() {
-    if (branch_other.active) {
+    if (br_oth.active) {
         Y0 = addressRegister;
         Y1 = (uint10_t){0};
     } else {

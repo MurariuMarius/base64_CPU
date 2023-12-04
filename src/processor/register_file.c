@@ -14,8 +14,8 @@ uint10_t arguments;
 
 void Demux2()
 {
-    reg_select = ((arguments.x >> 9) & 0x001); // msb is 1 => true, else false
-    immediate.x = arguments.x & 0x01FF;
+    reg_select.active = ((arguments.val >> 9) & 0x001); // msb is 1 => true, else false
+    immediate.val = arguments.val & 0x01FF;
 }
 
 void sign_extend_9_to_16_bits()
@@ -24,9 +24,9 @@ void sign_extend_9_to_16_bits()
     uint8_t i;
     for (i = 15; i >= 9; i--)
     {
-        ext_immediate |= ((immediate.x & (1 << 9)) << i);
+        ext_immediate |= ((immediate.val & (1 << 9)) << i);
     }
-    ext_immediate |= immediate.x;
+    ext_immediate |= immediate.val;
 }
 
 uint16_t register_file()

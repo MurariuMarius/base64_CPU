@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "internals.h"
 #include "opcodes.h"
@@ -6,41 +7,41 @@
 uint6_t aluOp;
 uint16_t opA;
 uint16_t opB;
-extern signal ZF,NF,CF,OF;
+signal ZF,NF,CF,OF;
 uint16_t result;
 
 void check_for_OF()
 {
-    signal MSB_A = opA & (1 << 7);
-    signal MSB_B = opB & (1 << 7);
-    signal MSB_R = result & (1 << 7);
-    OF = (!(MSB_A ^ MSB_B) && (MSB_A ^ MSB_R));
+    signal MSB_A = (signal){(opA & (1 << 7)) != 0};
+    signal MSB_B = (signal){(opB & (1 << 7)) != 0};
+    signal MSB_R = (signal){(result & (1 << 7)) != 0};
+    OF.active = (!(MSB_A.active ^ MSB_B.active) && (MSB_A.active ^ MSB_R.active));
 }
 
 void main_ALU_fcn()
 {
-    ZF = false;
-    NF = false;
-    CF = false;
-    OF = false;
+    ZF = INACTIVE;
+    NF = INACTIVE;
+    CF = INACTIVE;
+    OF = INACTIVE;
     
-    if (aluOp.x != 0U)
+    if (aluOp.val != 0U)
     {
-        switch (aluOp.x)
+        switch (aluOp.val)
         {
-        case ADDI:
+        case ADD:
             // perform the addition operation
             // check for CF
             if ((uint32_t)(opA + opB) > UINT16_MAX)
-                CF = true;
+                CF = ACTIVE;
             result = opA + opB;
             check_for_OF();
             break;
-        case SUBI:
+        case SUB:
             // perform the subtraction operation
             // check for CF
             if (opA < opB)
-                CF = true;
+                CF = ACTIVE;
             result = opA - opB;
             check_for_OF();
             break;
@@ -49,7 +50,7 @@ void main_ALU_fcn()
             result = opA >> opB;
             // check for carry
             if (opA & 0b01)
-                CF = true;
+                CF = ACTIVE;
             break;
         case LSL: // these are the same
         case RSL:
@@ -59,7 +60,7 @@ void main_ALU_fcn()
         case RSR:
             // check for carry
             if (opA & 0b01)
-                CF = true;
+                CF = ACTIVE;
             if (opA & (1 << 15)) // if opA's MSB == 1
             {
                 result = opA >> opB;
@@ -72,37 +73,37 @@ void main_ALU_fcn()
             else
                 result = opA >> opB; // first opB positions in result are filled with 0
             break;
-        case MOVI:
+        case MOV:
             // perform the MOV operation
             result = opB;
             break;
-        case MULI:
+        case MUL:
             // perform the MUL operation
             result = opA * opB;
             break;
-        case DIVI:
+        case DIV:
             // perform the DIV operation
             if (opB)
                 result = opA / opB;
             else
                 result = -1;
             break;
-        case MODI:
+        case MOD:
             // perform the MOD operation
             if (opB)
                 result = opA % opB;
             else
                 result = -1;
             break;
-        case ANDI:
+        case AND:
             // perform the AND operation
             result = opA & opB;
             break;
-        case ORI:
+        case OR:
             // perform the OR operation
             result = opA | opB;
             break;
-        case XORI:
+        case XOR:
             // perform the XOR operation
             result = opA ^ opB;
             break;
@@ -111,7 +112,7 @@ void main_ALU_fcn()
             result = ~opA;
             break;
         case TST: // these are the same
-        case CMPI:
+        case CMP:
             // load into result the difference...flags are set after switch
             result = opA - opB;
             break;
@@ -130,9 +131,9 @@ void main_ALU_fcn()
     }
     
     if (result == 0)
-        ZF = true;
+        ZF = ACTIVE;
 
     if (result < 0)
-        NF = true;
+        NF = ACTIVE;
     
 }

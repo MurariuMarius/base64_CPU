@@ -9,6 +9,7 @@ signal bra;
 signal ABS;         
 signal next;        
 signal end;
+signal jmp;
 
 // Test
 static void mock_PSH_op() {
@@ -59,7 +60,7 @@ void CU_handleNextInstruction(uint6_t instruction){
     }
 
     //
-    if(instruction.val >= ADDI && instruction.val <= TSTI){ 
+    if(instruction.val >= ADD && instruction.val <= TST){ 
         aluINSTR.active = 0b1;
     }
 }

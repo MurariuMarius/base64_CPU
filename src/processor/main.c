@@ -14,9 +14,10 @@ int main(int argc, char **argv) {
 
     initializeInstructionMemory(argv[1]);
 
+    next = ACTIVE;
+    
     // Driver
     while(1) {
-       next = ACTIVE;
        nextPC();
        if (end.active) break;
     }

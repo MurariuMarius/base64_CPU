@@ -36,9 +36,10 @@ typedef struct {
 extern signal next;
 extern signal bra;
 extern signal jmp;
-extern signal branch_other;
+extern signal br_oth;
 extern signal end;
-extern uint2_t spOp;
+extern signal aluINSTR;
+extern uint2_t stackOP;
 
 /*  INSTRUCTION MEMORY  */
 
