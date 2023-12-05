@@ -80,7 +80,7 @@ class InstructionParser:
         elif opcode.upper() in opcodes.stackInstructions:
             instruction = StackInstruction(instruction)
         elif opcode.upper() in opcodes.ALUInstructions:
-            instruction = ALUInstruction(instruction)
+            instruction = ALUInstruction.get(instruction)
         elif opcode.upper() in opcodes.HLT:
             instruction = HaltInstruction()
         else:

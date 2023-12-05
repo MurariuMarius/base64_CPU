@@ -32,6 +32,13 @@ uint16_t *getSelectedRegister() {
     return reg_select.active ? &Ry : &Rx;
 }
 
+uint16_t getOperandRegister() {
+    if ((ext_immediate & 0x1) != 0) {
+        return Ry;
+    }
+    return Rx;
+}
+
 void register_file()
 {
     Demux2();
@@ -41,7 +48,12 @@ void register_file()
 
     if(lse.active)
     {
-        *reg = ext_immediate;
+        if (immOp.active) {
+            *reg = ext_immediate;
+        } else {
+            *reg = getOperandRegister();
+            printf("Moving %d\n", getOperandRegister());
+        }
     }
     if(ldm.active)
     {

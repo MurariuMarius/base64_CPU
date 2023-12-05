@@ -44,6 +44,14 @@ void checkFlags() {
     // printf("FLAGS: jmp %d\n", jmp.active);
 }
 
+static uint16_t mux() {
+    if (immOp.active) {
+        return sign_extend_9_to_16_bits();
+    } else {
+        return getOperandRegister();
+    }
+}
+
 uint16_t main_ALU_fcn()
 {
     if (!aluINSTR.active) {
@@ -51,7 +59,7 @@ uint16_t main_ALU_fcn()
     }
 
     opA = *getSelectedRegister();
-    opB = sign_extend_9_to_16_bits();
+    opB = mux();
 
     printf("ALU: opA: %d, opB: %d\n", opA, opB);
 
@@ -65,6 +73,7 @@ uint16_t main_ALU_fcn()
         switch (instruction.val)
         {
         case ADD:
+        case ADDI:
             // perform the addition operation
             // check for CF
             if ((uint32_t)(opA + opB) > UINT16_MAX)
@@ -73,6 +82,7 @@ uint16_t main_ALU_fcn()
             check_for_OF();
             break;
         case SUB:
+        case SUBI:
             // perform the subtraction operation
             // check for CF
             if (opA < opB)
@@ -81,6 +91,7 @@ uint16_t main_ALU_fcn()
             check_for_OF();
             break;
         case LSR:
+        case LSRI:
             // perform the logical shift right operation
             accumulator = opA >> opB;
             // check for carry
@@ -88,11 +99,14 @@ uint16_t main_ALU_fcn()
                 CF = ACTIVE;
             break;
         case LSL: // these are the same
+        case LSLI:
         case RSL:
+        case RSLI:
             // perfrom the logical shift left operation
             accumulator = opA << opB;
             break;
         case RSR:
+        case RSRI:
             // check for carry
             if (opA & 0b01)
                 CF = ACTIVE;
@@ -113,10 +127,12 @@ uint16_t main_ALU_fcn()
             accumulator = opB;
             break;
         case MUL:
+        case MULI:
             // perform the MUL operation
             accumulator = opA * opB;
             break;
         case DIV:
+        case DIVI:
             // perform the DIV operation
             if (opB)
                 accumulator = opA / opB;
@@ -124,6 +140,7 @@ uint16_t main_ALU_fcn()
                 accumulator = -1;
             break;
         case MOD:
+        case MODI:
             // perform the MOD operation
             if (opB)
                 accumulator = opA % opB;
@@ -131,31 +148,39 @@ uint16_t main_ALU_fcn()
                 accumulator = -1;
             break;
         case AND:
+        case ANDI:
             // perform the AND operation
             accumulator = opA & opB;
             break;
         case OR:
+        case ORI:
             // perform the OR operation
             accumulator = opA | opB;
             break;
         case XOR:
+        case XORI:
             // perform the XOR operation
             accumulator = opA ^ opB;
             break;
         case NOT:
+        case NOTI:
             // perform the NOT operation on the first operand
             accumulator = ~opA;
             break;
         case TST: // these are the same
+        case TSTI: // these are the same
         case CMP:
+        case CMPI:
             // load into result the difference...flags are set after switch
             accumulator = opA - opB;
             break;
         case INC:
+        case INCI:
             // perform the INC operation on the first operand
             accumulator = opA + 1;
             break;
         case DEC:
+        case DECI:
             // perform the DEC operation on the first operand
             accumulator = opA - 1;
             break;

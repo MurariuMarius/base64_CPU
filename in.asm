@@ -8,4 +8,8 @@ end: ADD X, #100
 PSH X
 ADD X, #10
 POP X
+ADD Y, X
+MOV X, Y
+SUB X, #94
+MOV Y, X
 HLT

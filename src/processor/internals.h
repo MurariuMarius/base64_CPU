@@ -42,6 +42,7 @@ extern signal aluINSTR;
 extern signal lse;
 extern signal ldm;
 extern signal str;
+extern signal immOp;
 extern uint2_t stackOP;
 
 /* BUSSES */
@@ -75,6 +76,7 @@ void checkFlags();
 void register_file();
 uint16_t *getSelectedRegister();
 uint16_t sign_extend_9_to_16_bits();
+uint16_t getOperandRegister();
 
 // void initializePC();
 // void testExtendUnit(uint10_t in);

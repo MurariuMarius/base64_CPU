@@ -60,9 +60,37 @@ class MemoryInstruction(Instruction):
 
 class ALUInstruction(Instruction):
     def __init__(self, instruction):
-        opcode, registerAddress, immediate = self.__validate(instruction)
+        opcode, registerAddress, operandRegisterAddress = self.__validate(instruction)
 
         super().__init__(ALUInstructions.get(opcode.upper()))
+        self.registerAddress = registerAddress
+        self.operandRegisterAddress = operandRegisterAddress
+
+    def __validate(self, instruction):
+        if len(instruction) != 3 or \
+            instruction[1].upper() not in REGISTERS or \
+            instruction[2].upper() not in REGISTERS:
+            raise InvalidInstructionException(instruction)
+        return instruction[0], REGISTERS[instruction[1].upper()], REGISTERS[instruction[2].upper()]
+
+    def __repr__(self) -> str:
+        return super().__repr__() + f"{self.registerAddress}|{self.operandRegisterAddress}"
+    
+    def getBytes(self):
+        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1 & self.operandRegisterAddress)
+        return bytearray(result.to_bytes(2))
+    
+    def get(instruction):
+        if "#" in instruction[2]:
+            return ImmediateALUInstruction(instruction)
+        return ALUInstruction(instruction)
+    
+
+class ImmediateALUInstruction(Instruction):
+    def __init__(self, instruction):
+        opcode, registerAddress, immediate = self.__validate(instruction)
+
+        super().__init__(immediateALUInstructions.get(opcode.upper()))
         self.registerAddress = registerAddress
         self.immediate = immediate
 
@@ -71,7 +99,7 @@ class ALUInstruction(Instruction):
             instruction[1].upper() not in REGISTERS or \
             not re.match("^#[0-9]*$", str(instruction[2])):
             raise InvalidInstructionException(instruction)
-        return instruction[0], REGISTERS[instruction[1].upper()], int(instruction[2].strip("#"))
+        return instruction[0]+"I", REGISTERS[instruction[1].upper()], int(instruction[2].strip("#"))
 
     def __repr__(self) -> str:
         return super().__repr__() + f"{self.registerAddress}|{self.immediate}"

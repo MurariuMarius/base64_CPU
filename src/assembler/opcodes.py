@@ -19,8 +19,12 @@ stackInstructions = {
 }
 
 ALUInstructions = {
-    "ADD": 0b100000,
-    "SUB": 0b100001,
+    "ADD": 0b011100,
+    "SUB": 0b011101,
+    "INC": 0b011110,
+    "DEC": 0b011111,
+    "CMP": 0b100000,
+    "TST": 0b100001,
     "LSR": 0b100010,
     "LSL": 0b100011,
     "RSR": 0b100100,
@@ -32,11 +36,28 @@ ALUInstructions = {
     "AND": 0b101010,
     "OR":  0b101011,
     "XOR": 0b101100,
-    "NOT": 0b101101,
-    "CMP": 0b101110,
-    "TST": 0b101111,
-    "INC": 0b110000,
-    "DEC": 0b110001
+    "NOT": 0b101101
+}
+
+immediateALUInstructions = {
+    "ADDI": 0b101110,
+    "SUBI": 0b101111,
+    "CMPI": 0b110000,
+    "TSTI": 0b110001,
+    "LSRI": 0b110010,
+    "LSLI": 0b110011,
+    "RSRI": 0b110100,
+    "RSLI": 0b110101,
+    "MOVI": 0b110110,
+    "MULI": 0b110111,
+    "DIVI": 0b111000,
+    "MODI": 0b111001,
+    "ANDI": 0b111010,
+    "ORI":  0b111011,
+    "XORI": 0b111100,
+    "NOTI": 0b111101,
+    "INCI": 0b111110,
+    "DECI": 0b111111
 }
 
 HLT = {

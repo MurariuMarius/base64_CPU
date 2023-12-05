@@ -12,6 +12,7 @@ signal jmp;
 signal lse;
 signal ldm;
 signal str;
+signal immOp;
 
 
 static void resetFlowControlSignals() {
@@ -25,6 +26,7 @@ static void resetSignals() {
     aluINSTR = INACTIVE;
     str = INACTIVE;
     ldm = INACTIVE;
+    immOp = INACTIVE;
 }
 
 void CU_handleNextInstruction() {
@@ -35,6 +37,8 @@ void CU_handleNextInstruction() {
             end = ACTIVE;
             break;
             
+        case MOVI:
+            immOp = ACTIVE;
         case MOV:
             lse = ACTIVE;
             register_file();
@@ -70,7 +74,13 @@ void CU_handleNextInstruction() {
 
     // printf("CU: br_oth: %d, ABS: %d\n", br_oth.active, br_always.active);
 
-    if(instruction.val >= ADD && instruction.val <= TST && instruction.val != MOV) { 
+    if(instruction.val >= ADD && instruction.val <= NOT && instruction.val != MOV) { 
+        aluINSTR = ACTIVE;
+        register_file();
+    }
+
+    if(instruction.val >= ADDI && instruction.val <= DECI && instruction.val != MOVI) { 
+        immOp = ACTIVE;
         aluINSTR = ACTIVE;
         register_file();
     }
