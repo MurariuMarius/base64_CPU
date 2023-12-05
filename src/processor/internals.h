@@ -39,7 +39,13 @@ extern signal jmp;
 extern signal br_oth;
 extern signal end;
 extern signal aluINSTR;
+extern signal lse;
+extern signal ldm;
+extern signal lacc;
 extern uint2_t stackOP;
+
+/* BUSSES */
+extern uint6_t instruction;
 
 /*  INSTRUCTION MEMORY  */
 
@@ -52,7 +58,7 @@ uint16_t getAddressRegisterFromPC();
 void nextPC();
 
 /*  CONTROL UNIT  */
-void CU_handleNextInstruction(uint6_t opCode);
+void CU_handleNextInstruction();
 
 /*  DATA MEMORY  */
 void store(uint16_t word, uint16_t index);
@@ -60,6 +66,14 @@ uint16_t load(uint16_t index);
 
 /*  STACK POINTER  */
 uint16_t SP_operation();
+
+/*  ALU  */
+uint16_t main_ALU_fcn();
+
+/*  REGISTER FILES  */
+void register_file();
+uint16_t *getSelectedRegister();
+uint16_t sign_extend_9_to_16_bits();
 
 // void initializePC();
 // void testExtendUnit(uint10_t in);

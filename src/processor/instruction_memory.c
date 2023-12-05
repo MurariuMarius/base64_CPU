@@ -4,6 +4,8 @@
 
 #include "internals.h"
 
+uint6_t instruction;
+
 static uint8_t instructionMemory[INSTRUCTION_MEMORY_SIZE];
 
 static uint6_t instructionRegister;
@@ -59,7 +61,9 @@ uint16_t readWordFromInstructionMemory(uint16_t index) {
 
     // printf("%04x %04x\n", getAddressRegisterFromPC(), getAddressRegisterFromRF().val);
 
-    CU_handleNextInstruction(instructionRegister);
+    instruction = instructionRegister;
+
+    CU_handleNextInstruction();
 
     return instructionWord;
 }

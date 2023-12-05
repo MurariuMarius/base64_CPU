@@ -10,6 +10,9 @@ signal ABS;
 signal next;        
 signal end;
 signal jmp;
+signal lse;
+signal ldm;
+signal lacc;
 
 // Test
 static void mock_PSH_op() {
@@ -25,11 +28,15 @@ static void mock_POP_op() {
 }
 
 
-void CU_handleNextInstruction(uint6_t instruction){
+void CU_handleNextInstruction() {
     next.active = 0b0;
     
     //verificare semnal pt operatii pe stack
     switch(instruction.val){
+        case MOV:
+            lse = ACTIVE;
+            register_file();
+            break;
         case PSH:
             stackOP.val = 0b01;
             mock_PSH_op();
@@ -62,5 +69,6 @@ void CU_handleNextInstruction(uint6_t instruction){
     //
     if(instruction.val >= ADD && instruction.val <= TST){ 
         aluINSTR.active = 0b1;
+        main_ALU_fcn();
     }
 }
