@@ -31,34 +31,33 @@ void CU_handleNextInstruction() {
     resetFlowControlSignals();
     
     switch(instruction.val){
+        case HLT:
+            end = ACTIVE;
+            break;
+            
         case MOV:
             lse = ACTIVE;
             register_file();
             break;
+
+        case POP: 
+            stackOP.val = 0b10;
         case LDR:
             ldm = ACTIVE;
             register_file();
             break;
+
+        case PSH:
+            stackOP.val = 0b01;
         case STR:
             str = ACTIVE;
             register_file();
             break;
-        case PSH:
-            stackOP.val = 0b01;
-            str = ACTIVE;
-            register_file();
-            break;
-        case POP: 
-            stackOP.val = 0b10;
-            ldm = ACTIVE;
-            register_file();
-            break;
-        case HLT:
-            end.active = 0b1;
-            break;
+
         default:
             break;
     }
+
 
     //verificare semnale de branch
     if(instruction.val >= BRZ && instruction.val <= RET){
@@ -71,7 +70,6 @@ void CU_handleNextInstruction() {
 
     // printf("CU: br_oth: %d, ABS: %d\n", br_oth.active, br_always.active);
 
-    //
     if(instruction.val >= ADD && instruction.val <= TST && instruction.val != MOV) { 
         aluINSTR = ACTIVE;
         register_file();
