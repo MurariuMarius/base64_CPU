@@ -34,7 +34,7 @@ typedef struct {
 
 /*  SIGNALS  */
 extern signal next;
-extern signal bra;
+extern signal br_always;
 extern signal jmp;
 extern signal br_oth;
 extern signal end;
@@ -69,6 +69,7 @@ uint16_t SP_operation();
 
 /*  ALU  */
 uint16_t main_ALU_fcn();
+void checkFlags();
 
 /*  REGISTER FILES  */
 void register_file();

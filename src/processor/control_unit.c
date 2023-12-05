@@ -5,8 +5,7 @@
 uint2_t stackOP;     
 signal aluINSTR;   
 signal br_oth;      
-signal bra;         
-signal ABS;         
+signal br_always;         
 signal next;        
 signal end;
 signal jmp;
@@ -56,16 +55,20 @@ void CU_handleNextInstruction() {
     //verificare semnale de branch
     if(instruction.val >= BRZ && instruction.val <= RET){
         br_oth.active = 0b1;
+        checkFlags();
         if(instruction.val == BRA){
-            ABS.active = 0b1;
+            br_always.active = 0b1;
+            next.active = 0b0;
         }else{
-            ABS.active = 0b0;
+            next.active = 0b1;
+            br_always.active = 0b0;
         }
-        next.active = 0b0;
     }else{
-        br_oth.active = 0b0;
         next.active = 0b1;
+        br_oth.active = 0b0;
     }
+
+    printf("CU: br_oth: %d, ABS: %d\n", br_oth.active, br_always.active);
 
     //
     if(instruction.val >= ADD && instruction.val <= TST && instruction.val != MOV) { 

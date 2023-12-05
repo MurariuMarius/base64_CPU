@@ -17,6 +17,31 @@ void check_for_OF()
     OF.active = (!(MSB_A.active ^ MSB_B.active) && (MSB_A.active ^ MSB_R.active));
 }
 
+void checkFlags() {
+    jmp = INACTIVE;
+    if (!br_oth.active) {
+        return;
+    }
+    
+    uint2_t selector = (uint2_t){instruction.val & 0x003};
+    switch(selector.val) {
+        // BRZ
+        case 0b00:
+            jmp = ZF;
+            break;
+        // BRN
+        case 0b01:
+            jmp = NF;
+            break;
+        // BRC
+        case 0b10:
+            jmp = CF;
+            break;
+        case 0b11:
+            jmp = OF;
+    }
+}
+
 uint16_t main_ALU_fcn()
 {
     if (!aluINSTR.active) {

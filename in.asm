@@ -1,7 +1,5 @@
 MOV X, #4
-MOV Y, #5
-MOV Y, #4
-ADD X, #10
-MUL X, #5
-LSR X, #1
-HLT
+l1: SUB X, #4
+BRZ end
+ADD X, #15
+end: HLT
