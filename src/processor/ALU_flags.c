@@ -40,6 +40,8 @@ void checkFlags() {
         case 0b11:
             jmp = OF;
     }
+
+    // printf("FLAGS: jmp %d\n", jmp.active);
 }
 
 uint16_t main_ALU_fcn()

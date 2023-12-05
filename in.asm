@@ -1,5 +1,5 @@
 MOV X, #4
-l1: SUB X, #4
+l1: SUB X, #1
 BRZ end
-ADD X, #15
+BRA l1
 end: HLT

@@ -11,7 +11,6 @@ signal end;
 signal jmp;
 signal lse;
 signal ldm;
-signal lacc;
 
 // Test
 static void mock_PSH_op() {
@@ -26,16 +25,25 @@ static void mock_POP_op() {
     printf("POP %d\n", load(SP_operation()));
 }
 
+static void resetFlowControlSignals() {
+    next = INACTIVE;
+    br_always = INACTIVE;
+    br_oth = INACTIVE;
+}
+
+static void resetSignals() {
+    lse = INACTIVE;
+    aluINSTR = INACTIVE;
+}
 
 void CU_handleNextInstruction() {
-    next.active = 0b0;
+    resetFlowControlSignals();
     
     //verificare semnal pt operatii pe stack
     switch(instruction.val){
         case MOV:
             lse = ACTIVE;
             register_file();
-            lse = INACTIVE;
             break;
         case PSH:
             stackOP.val = 0b01;
@@ -54,26 +62,22 @@ void CU_handleNextInstruction() {
 
     //verificare semnale de branch
     if(instruction.val >= BRZ && instruction.val <= RET){
-        br_oth.active = 0b1;
+        br_oth = ACTIVE;
         checkFlags();
         if(instruction.val == BRA){
-            br_always.active = 0b1;
-            next.active = 0b0;
-        }else{
-            next.active = 0b1;
-            br_always.active = 0b0;
+            br_always = ACTIVE;
         }
-    }else{
-        next.active = 0b1;
-        br_oth.active = 0b0;
     }
 
-    printf("CU: br_oth: %d, ABS: %d\n", br_oth.active, br_always.active);
+    // printf("CU: br_oth: %d, ABS: %d\n", br_oth.active, br_always.active);
 
     //
     if(instruction.val >= ADD && instruction.val <= TST && instruction.val != MOV) { 
         aluINSTR = ACTIVE;
         register_file();
-        aluINSTR = INACTIVE;
     }
+
+    next = ACTIVE;
+
+    resetSignals();
 }
