@@ -23,6 +23,7 @@ static uint16_t mux(uint16_t *oldSP, uint16_t *newSP) {
 uint16_t SP_operation() {
     uint16_t oldSP = SP;
     ALU_SP();
+    printf("SP: %d\n", mux(&oldSP, &SP));
     return mux(&oldSP, &SP);
 }
 

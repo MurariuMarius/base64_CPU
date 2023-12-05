@@ -4,8 +4,8 @@ LDR X, 5
 l1: SUB X, #1
 BRZ end
 BRA l1
-end: PSH X
+end: ADD X, #100
 PSH X
-POP X
+ADD X, #10
 POP X
 HLT
