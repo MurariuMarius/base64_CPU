@@ -1,19 +1,7 @@
-LDR X, 4
-STR Y, 6
-label1: BRZ addr
-label2: BRC _addr
-BRA label1
-ADD X, #1;#1
-TST X, #6
-;CMP X, #6
-;addr: drPos
-addr: BRZ _addr
-_addr: BRZ addr
-CMP Y #4
-PSH X
-PSH X
-PSH Y
-POP X
-POP Y
-POP Y
+MOV X, #4
+MOV Y, #5
+MOV Y, #4
+ADD X, #10
+MUL X, #5
+LSR X, #1
 HLT

@@ -36,6 +36,7 @@ void CU_handleNextInstruction() {
         case MOV:
             lse = ACTIVE;
             register_file();
+            lse = INACTIVE;
             break;
         case PSH:
             stackOP.val = 0b01;
@@ -67,8 +68,9 @@ void CU_handleNextInstruction() {
     }
 
     //
-    if(instruction.val >= ADD && instruction.val <= TST){ 
-        aluINSTR.active = 0b1;
-        main_ALU_fcn();
+    if(instruction.val >= ADD && instruction.val <= TST && instruction.val != MOV) { 
+        aluINSTR = ACTIVE;
+        register_file();
+        aluINSTR = INACTIVE;
     }
 }

@@ -30,7 +30,7 @@ uint16_t sign_extend_9_to_16_bits()
 }
 
 uint16_t *getSelectedRegister() {
-    return reg_select.active ? &Rx : &Ry;
+    return reg_select.active ? &Ry : &Rx;
 }
 
 void register_file()
@@ -48,7 +48,7 @@ void register_file()
     {
         *reg = data_memory;
     }
-    if(lacc.active)
+    if(aluINSTR.active)
     {
         *reg = main_ALU_fcn();
     }
