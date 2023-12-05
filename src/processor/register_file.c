@@ -3,7 +3,6 @@
 #include "internals.h"
 
 signal reg_select;
-uint16_t data_memory;
 uint9_t immediate;
 uint16_t ext_immediate;
 
@@ -46,12 +45,14 @@ void register_file()
     }
     if(ldm.active)
     {
-        *reg = data_memory;
+        *reg = load(ext_immediate);
     }
     if(aluINSTR.active)
     {
         *reg = main_ALU_fcn();
     }
+
+    store(*reg, ext_immediate);
 
     printf("RX: %d; RY: %d\n", Rx, Ry);
 }

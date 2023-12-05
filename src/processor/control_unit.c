@@ -11,6 +11,7 @@ signal end;
 signal jmp;
 signal lse;
 signal ldm;
+signal str;
 
 // Test
 static void mock_PSH_op() {
@@ -34,19 +35,29 @@ static void resetFlowControlSignals() {
 static void resetSignals() {
     lse = INACTIVE;
     aluINSTR = INACTIVE;
+    str = INACTIVE;
+    ldm = INACTIVE;
 }
 
 void CU_handleNextInstruction() {
     resetFlowControlSignals();
     
-    //verificare semnal pt operatii pe stack
     switch(instruction.val){
         case MOV:
             lse = ACTIVE;
             register_file();
             break;
+        case LDR:
+            ldm = ACTIVE;
+            register_file();
+            break;
+        case STR:
+            str = ACTIVE;
+            register_file();
+            break;
         case PSH:
             stackOP.val = 0b01;
+            str = ACTIVE;
             mock_PSH_op();
             break;
         case POP: 

@@ -41,6 +41,7 @@ extern signal end;
 extern signal aluINSTR;
 extern signal lse;
 extern signal ldm;
+extern signal str;
 extern uint2_t stackOP;
 
 /* BUSSES */
