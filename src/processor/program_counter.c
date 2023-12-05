@@ -16,7 +16,7 @@ void nextPC() {
     readWordFromInstructionMemory(PC);
 
     uint16_t branchAddress = getAddressRegisterFromPC();
-    signal branch = (signal){jmp.active | br_always.active};
+    signal branch = (signal){(jmp.active & br_oth.active) | br_always.active};
 
     // printf("PC: next: %d branch %d to %04x\n", next.active, branch.active, branchAddress);
 
