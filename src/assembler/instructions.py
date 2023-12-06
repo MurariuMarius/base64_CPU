@@ -19,6 +19,9 @@ class BranchInstruction(Instruction):
         self.address = address
     
     def __validate(self, instruction, labels):
+        if len(instruction) == 1 and instruction[0] == 'ret':
+            return instruction[0], 0
+
         if len(instruction) != 2:
             raise InvalidInstructionException(instruction)
         branchAddress = labels.get(instruction[1])

@@ -12,4 +12,11 @@ ADD Y, X
 MOV X, Y
 SUB X, #94
 MOV Y, X
+MOV Y, #5
+JMP a
+MUL Y, Y
+LDR X, 50
 HLT
+a: ADD Y, #10
+STR Y, 50
+RET

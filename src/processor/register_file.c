@@ -52,7 +52,6 @@ void register_file()
             *reg = ext_immediate;
         } else {
             *reg = getOperandRegister();
-            printf("Moving %d\n", getOperandRegister());
         }
     }
     if(ldm.active)

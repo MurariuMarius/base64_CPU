@@ -16,7 +16,7 @@ static void mux(uint16_t index) {
 }
 
 void store(uint16_t word, uint16_t index) {
-    if (str.active) {
+    if (str.active || jmpS.active) {
         mux(index);
         dataMemory[muxedIndex] = word;
         printf("DM: Storing %d at %d\n", word, muxedIndex);

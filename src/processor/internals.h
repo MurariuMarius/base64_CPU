@@ -43,6 +43,8 @@ extern signal lse;
 extern signal ldm;
 extern signal str;
 extern signal immOp;
+extern signal jmpS;
+extern signal ret;
 extern uint2_t stackOP;
 
 /* BUSSES */

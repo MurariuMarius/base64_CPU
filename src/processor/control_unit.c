@@ -12,16 +12,19 @@ signal jmp;
 signal lse;
 signal ldm;
 signal str;
+signal jmpS;
+signal ret;
 signal immOp;
 
 
-static void resetFlowControlSignals() {
+static void resetSignals() {
     next = INACTIVE;
     br_always = INACTIVE;
     br_oth = INACTIVE;
-}
+    ret = INACTIVE;
+    jmpS = INACTIVE;
+    stackOP.val = 0;
 
-static void resetSignals() {
     lse = INACTIVE;
     aluINSTR = INACTIVE;
     str = INACTIVE;
@@ -30,7 +33,7 @@ static void resetSignals() {
 }
 
 void CU_handleNextInstruction() {
-    resetFlowControlSignals();
+    resetSignals();
     
     switch(instruction.val){
         case HLT:
@@ -58,17 +61,26 @@ void CU_handleNextInstruction() {
             register_file();
             break;
 
+        case RET:
+            ret = ACTIVE;
+            stackOP.val = 0b10;
+            break;
+
         default:
             break;
     }
 
 
     //verificare semnale de branch
-    if(instruction.val >= BRZ && instruction.val <= RET){
+    if(instruction.val >= BRZ && instruction.val < RET){
         br_oth = ACTIVE;
         checkFlags();
-        if(instruction.val == BRA){
+        if(instruction.val == BRA || instruction.val == JMP){
             br_always = ACTIVE;
+            if (instruction.val == JMP) {
+                stackOP.val = 0b01;
+                jmpS = ACTIVE;
+            }
         }
     }
 
@@ -87,5 +99,4 @@ void CU_handleNextInstruction() {
 
     next = ACTIVE;
 
-    resetSignals();
 }
