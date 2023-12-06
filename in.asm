@@ -15,6 +15,8 @@ MOV Y, X
 MOV Y, #5
 JMP a
 MUL Y, Y
+MOV X, #50
+STR Y, [X]
 LDR X, 50
 HLT
 a: ADD Y, #10

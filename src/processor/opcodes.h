@@ -4,6 +4,9 @@
 #define LDR 0b000001
 #define STR 0b000010
 
+#define LDR_RI 0b010100
+#define STR_RI 0b010101
+
 #define BRZ 0b000100
 #define BRN 0b000101
 #define BRC 0b000110

@@ -76,7 +76,7 @@ class InstructionParser:
         if opcode.upper() in opcodes.branchInstructions:
             instruction = BranchInstruction(instruction, labels)
         elif opcode.upper() in opcodes.memoryInstructions:
-            instruction = MemoryInstruction(instruction)
+            instruction = MemoryInstruction.get(instruction)
         elif opcode.upper() in opcodes.stackInstructions:
             instruction = StackInstruction(instruction)
         elif opcode.upper() in opcodes.ALUInstructions:

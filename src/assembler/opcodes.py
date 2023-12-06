@@ -3,6 +3,11 @@ memoryInstructions = {
     "STR": 0b000010
 }
 
+indirectMemoryInstructions = {
+    "LDR_RI": 0b010100,
+    "STR_RI": 0b010101
+}
+
 branchInstructions = {
     "BRZ": 0b000100,
     "BRN": 0b000101,

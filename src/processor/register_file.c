@@ -56,14 +56,22 @@ void register_file()
     }
     if(ldm.active)
     {
-        *reg = load(ext_immediate);
+        if (immOp.active) {
+            *reg = load(ext_immediate);
+        } else {
+            *reg = load(getOperandRegister());
+        }
     }
     if(aluINSTR.active)
     {
         *reg = main_ALU_fcn();
     }
 
-    store(*reg, ext_immediate);
+    if (immOp.active) {
+        store(*reg, ext_immediate);
+    } else {
+        store(*reg, getOperandRegister());
+    }
 
     printf("RX: %d; RY: %d\n", Rx, Ry);
 }

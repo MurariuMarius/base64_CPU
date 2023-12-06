@@ -50,6 +50,8 @@ void CU_handleNextInstruction() {
         case POP: 
             stackOP.val = 0b10;
         case LDR:
+            immOp = ACTIVE;
+        case LDR_RI:
             ldm = ACTIVE;
             register_file();
             break;
@@ -57,6 +59,8 @@ void CU_handleNextInstruction() {
         case PSH:
             stackOP.val = 0b01;
         case STR:
+            immOp = ACTIVE;
+        case STR_RI:
             str = ACTIVE;
             register_file();
             break;

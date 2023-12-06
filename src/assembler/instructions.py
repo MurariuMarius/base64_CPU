@@ -60,6 +60,36 @@ class MemoryInstruction(Instruction):
         result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1FF & self.immediate)
         return bytearray(result.to_bytes(2))
     
+    def get(instruction):
+        if len(instruction) == 3 and instruction[2].startswith('[') and instruction[2].endswith(']'):
+            return RegisterIndirectMemoryInstruction(instruction)
+        return MemoryInstruction(instruction)
+    
+
+class RegisterIndirectMemoryInstruction(Instruction):
+    def __init__(self, instruction):
+        opcode, registerAddress, indirectRegister = self.__validate(instruction)
+
+        super().__init__(indirectMemoryInstructions.get(opcode.upper() + "_RI"))
+        self.registerAddress = registerAddress
+        self.indirectRegister = indirectRegister
+    
+    def __validate(self, instruction):
+        if len(instruction) != 3 or \
+            instruction[1].upper() not in REGISTERS or \
+            instruction[2].strip('[]').upper() not in REGISTERS:
+            raise InvalidInstructionException(instruction)
+        
+        instruction[2] = instruction[2].strip('[]')
+        return instruction[0], REGISTERS[instruction[1].upper()], REGISTERS[instruction[2].upper()]
+
+    def __repr__(self) -> str:
+        return super().__repr__() + f'{self.registerAddress}|{self.indirectRegister}'
+    
+    def getBytes(self):
+        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1FF & self.indirectRegister)
+        return bytearray(result.to_bytes(2))
+    
 
 class ALUInstruction(Instruction):
     def __init__(self, instruction):
