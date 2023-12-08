@@ -54,7 +54,7 @@ static uint16_t mux() {
 
 uint16_t main_ALU_fcn()
 {
-    if (!aluINSTR.active) {
+    if (!aluOp.active) {
         return accumulator;
     }
 

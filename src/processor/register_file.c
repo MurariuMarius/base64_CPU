@@ -62,7 +62,7 @@ void register_file()
             *reg = load(getOperandRegister());
         }
     }
-    if(aluINSTR.active)
+    if(aluOp.active)
     {
         *reg = main_ALU_fcn();
     }

@@ -38,7 +38,7 @@ extern signal br_always;
 extern signal jmp;
 extern signal br_oth;
 extern signal end;
-extern signal aluINSTR;
+extern signal aluOp;
 extern signal lse;
 extern signal ldm;
 extern signal str;

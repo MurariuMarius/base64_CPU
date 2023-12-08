@@ -3,7 +3,7 @@
 #include "internals.h"
 
 uint2_t stackOP;     
-signal aluINSTR;   
+signal aluOp;   
 signal br_oth;      
 signal br_always;         
 signal next;        
@@ -26,7 +26,7 @@ static void resetSignals() {
     stackOP.val = 0;
 
     lse = INACTIVE;
-    aluINSTR = INACTIVE;
+    aluOp = INACTIVE;
     str = INACTIVE;
     ldm = INACTIVE;
     immOp = INACTIVE;
@@ -91,13 +91,13 @@ void CU_handleNextInstruction() {
     // printf("CU: br_oth: %d, ABS: %d\n", br_oth.active, br_always.active);
 
     if(instruction.val >= ADD && instruction.val <= NOT && instruction.val != MOV) { 
-        aluINSTR = ACTIVE;
+        aluOp = ACTIVE;
         register_file();
     }
 
     if(instruction.val >= ADDI && instruction.val <= DECI && instruction.val != MOVI) { 
         immOp = ACTIVE;
-        aluINSTR = ACTIVE;
+        aluOp = ACTIVE;
         register_file();
     }
 
