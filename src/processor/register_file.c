@@ -2,6 +2,10 @@
 
 #include "internals.h"
 
+#define IS_SP(reg) (((reg) & 0x0180) == 0x180)
+#define GET_OFFSET(val) ((val) & 0x007F)
+#define IS_Y(reg) ((reg) & 0x0080)
+
 signal reg_select;
 uint9_t immediate;
 uint16_t ext_immediate;
@@ -26,7 +30,7 @@ static uint16_t sign_extend_7_to_16_bits(uint16_t value) {
 }
 
 static uint16_t getIndex() {
-    uint16_t offset = sign_extend_9_to_16_bits() & 0x007F;
+    uint16_t offset = GET_OFFSET(sign_extend_9_to_16_bits());
     offset = sign_extend_7_to_16_bits(offset);
     printf("RF: Offset %04x\n", offset);
     return getOperandRegister() + offset;
@@ -51,10 +55,10 @@ uint16_t *getSelectedRegister() {
 
 uint16_t getOperandRegister() {
     uint16_t selectedRegister = ext_immediate;
-    if ((selectedRegister & 0x0180) == 0x180) {
+    if (IS_SP(selectedRegister)) {
         return getSP();
     }
-    if (selectedRegister & 0x0080) {
+    if (IS_Y(selectedRegister)) {
         return Ry;
     }
     return Rx;
@@ -81,7 +85,6 @@ void register_file()
             *reg = load(ext_immediate);
         } else {
             *reg = load(getIndex());
-            // *reg = load(getIndex());
         }
     }
     else if(aluOp.active)
