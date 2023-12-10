@@ -27,3 +27,6 @@ uint16_t SP_operation() {
     return mux(&oldSP, &SP);
 }
 
+uint16_t getSP() {
+    return SP;
+}
