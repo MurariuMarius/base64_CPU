@@ -64,9 +64,10 @@ class LineParser:
         return label
 
     def extract(self, line : str):
-        line = line.split(";", 1)[0]
+        if match := re.search('\s*;.*$', line):
+            print(match.group())
+            line = line.removesuffix(match.group())
         line = line.replace(",", "").split(" ")
-        
         return line if line[0] else None
     
 

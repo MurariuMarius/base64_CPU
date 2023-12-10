@@ -69,6 +69,7 @@ uint16_t load(uint16_t index);
 
 /*  STACK POINTER  */
 uint16_t SP_operation();
+uint16_t getSP();
 
 /*  ALU  */
 uint16_t main_ALU_fcn();
