@@ -1,24 +1,15 @@
-MOV Y, #5
-STR Y, 5
-LDR X, 5
-l1: SUB X, #1
-BRZ end
-BRA l1
-end: ADD X, #100
-PSH X
-ADD X, #10
-POP X
-ADD Y, X
-MOV X, Y
-SUB X, #94
+MOV X, #4
+PSH Y   ; preserve the value of Y
+PSH X   ; pass X as parameter
+JMP func
+POP X   ; store in X the return value
+POP Y   ; retreive the original value of Y
 MOV Y, X
-MOV Y, #5
-JMP a
-MUL Y, Y
-MOV X, #50
-STR Y, [X]
-LDR X, 50
+MUL X, X
 HLT
-a: ADD Y, #10
-STR Y, 50
+func: LDR Y, [SP+1] ; access the function parameter through the stack
+STR Y, [Y-1]
+ADD Y, #10
+STR Y, [SP+1] ; store the return value in the stack
+LDR Y, [Y-11]
 RET

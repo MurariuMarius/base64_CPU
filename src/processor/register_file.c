@@ -15,8 +15,19 @@ static void Demux2()
     immediate.val = arguments.val & 0x01FF;
 }
 
+static uint16_t sign_extend_7_to_16_bits(uint16_t value) {
+    uint16_t out = 0U;
+    int sign = (value & (1 << 6)) != 0;
+    for (uint8_t i = 15; i >= 7; i--) {
+        out |= (sign << i);
+    }
+    out |= value;
+    return out;
+}
+
 static uint16_t getIndex() {
-    uint16_t offset = sign_extend_9_to_16_bits() & 0x003F;
+    uint16_t offset = sign_extend_9_to_16_bits() & 0x007F;
+    offset = sign_extend_7_to_16_bits(offset);
     printf("RF: Offset %04x\n", offset);
     return getOperandRegister() + offset;
 }
@@ -40,10 +51,10 @@ uint16_t *getSelectedRegister() {
 
 uint16_t getOperandRegister() {
     uint16_t selectedRegister = ext_immediate;
-    if (selectedRegister & 0x0080) {
+    if ((selectedRegister & 0x0180) == 0x180) {
         return getSP();
     }
-    if ((selectedRegister & 0x0040) != 0) {
+    if (selectedRegister & 0x0080) {
         return Ry;
     }
     return Rx;
