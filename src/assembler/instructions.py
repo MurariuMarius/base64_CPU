@@ -68,11 +68,12 @@ class MemoryInstruction(Instruction):
 
 class RegisterIndirectMemoryInstruction(Instruction):
     def __init__(self, instruction):
-        opcode, registerAddress, indirectRegister = self.__validate(instruction)
+        opcode, registerAddress, indirectRegister, offset = self.__validate(instruction)
 
         super().__init__(indirectMemoryInstructions.get(opcode.upper() + "_RI"))
         self.registerAddress = registerAddress
         self.indirectRegister = indirectRegister
+        self.offset = offset
     
     def __validate(self, instruction):
         if len(instruction) != 3 or \
@@ -81,13 +82,13 @@ class RegisterIndirectMemoryInstruction(Instruction):
             raise InvalidInstructionException(instruction)
         
         instruction[2] = instruction[2].strip('[]')
-        return instruction[0], REGISTERS[instruction[1].upper()], REGISTERS[instruction[2].upper()]
+        return instruction[0], REGISTERS[instruction[1].upper()], REGISTERS[instruction[2].upper()], 0
 
     def __repr__(self) -> str:
-        return super().__repr__() + f'{self.registerAddress}|{self.indirectRegister}'
+        return super().__repr__() + f'{self.registerAddress}|{self.indirectRegister}|{self.offset}'
     
     def getBytes(self):
-        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1FF & self.indirectRegister)
+        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | ((0x3 & self.indirectRegister) << 6) | (0x3F & self.offset)
         return bytearray(result.to_bytes(2))
     
 
@@ -110,7 +111,7 @@ class ALUInstruction(Instruction):
         return super().__repr__() + f"{self.registerAddress}|{self.operandRegisterAddress}"
     
     def getBytes(self):
-        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | (0x1 & self.operandRegisterAddress)
+        result = (self.opcode << 10) | ((1 & self.registerAddress) << 9) | ((0x1 & self.operandRegisterAddress) << 6)
         return bytearray(result.to_bytes(2))
     
     def get(instruction):

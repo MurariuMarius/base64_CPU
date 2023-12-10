@@ -33,7 +33,7 @@ uint16_t *getSelectedRegister() {
 }
 
 uint16_t getOperandRegister() {
-    if ((ext_immediate & 0x1) != 0) {
+    if ((ext_immediate & 0x0040) != 0) {
         return Ry;
     }
     return Rx;
@@ -54,7 +54,7 @@ void register_file()
             *reg = getOperandRegister();
         }
     }
-    if(ldm.active)
+    else if(ldm.active)
     {
         if (immOp.active) {
             *reg = load(ext_immediate);
@@ -62,12 +62,12 @@ void register_file()
             *reg = load(getOperandRegister());
         }
     }
-    if(aluOp.active)
+    else if(aluOp.active)
     {
         *reg = main_ALU_fcn();
     }
 
-    if (immOp.active) {
+    else if (immOp.active) {
         store(*reg, ext_immediate);
     } else {
         store(*reg, getOperandRegister());
