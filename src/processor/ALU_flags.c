@@ -172,7 +172,9 @@ uint16_t main_ALU_fcn()
         case CMP:
         case CMPI:
             // load into result the difference...flags are set after switch
-            accumulator = opA - opB;
+            NF.active = (opA - opB < 0);
+            ZF.active = (opA == opB);
+            accumulator = opA;
             break;
         case INC:
         case INCI:
