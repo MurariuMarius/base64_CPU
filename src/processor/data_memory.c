@@ -13,6 +13,7 @@ static void mux(uint16_t index) {
     } else {
         muxedIndex = index;
     }
+    muxedIndex %= DATA_MEMORY_SIZE;
 }
 
 void store(uint16_t word, uint16_t index) {
