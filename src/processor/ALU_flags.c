@@ -192,11 +192,18 @@ uint16_t main_ALU_fcn()
     
     if (accumulator == 0)
         ZF = ACTIVE;
-
-    if (accumulator < 0)
-        NF = ACTIVE;
+    else
+        switch (instruction.val) {
+            case SUB:
+            case SUBI:
+            case DEC:
+            case DECI:
+                if (accumulator > opA) {
+                    NF = ACTIVE;
+                }  
+        }
     
-    printf("ALU: Flags: ZF %d NF %d CF %d OF %d\n", ZF.active, NF.active, CF.active, OF.active);
+    printf("ALU: Flags: ZF %d, NF %d, CF %d, OF %d\n", ZF.active, NF.active, CF.active, OF.active);
     printf("ALU: ACC: %d\n", accumulator);
 
     return accumulator;
