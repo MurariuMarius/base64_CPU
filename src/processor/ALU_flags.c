@@ -4,17 +4,51 @@
 #include "internals.h"
 #include "opcodes.h"
 
+#define POSITIVE(operand) (((operand) & 0x8000) == 0)
+#define NEGATIVE(operand) (((operand) & 0x8000) != 0)
+
 int16_t opA;
 int16_t opB;
 signal ZF,NF,CF,OF;
 static int16_t accumulator;
 
-void check_for_OF()
+static void check_for_OF()
 {
-    signal MSB_A = (signal){(opA & (1 << 7)) != 0};
-    signal MSB_B = (signal){(opB & (1 << 7)) != 0};
-    signal MSB_R = (signal){(accumulator & (1 << 7)) != 0};
-    OF.active = (!(MSB_A.active ^ MSB_B.active) && (MSB_A.active ^ MSB_R.active));
+    switch (instruction.val) {
+        case ADD:
+        case ADDI:
+        case SUB:
+        case SUBI:
+            OF.active = (POSITIVE(opA) && POSITIVE(opB) && NEGATIVE(accumulator)) ||
+                        (NEGATIVE(opA) && NEGATIVE(opB) && POSITIVE(accumulator));
+            break;
+        case MUL:
+        case MULI:
+            if (POSITIVE(opA)) {
+                if (POSITIVE(opB)) {
+                    OF.active = opA > (INT16_MAX / opB);
+                } else {
+                    OF.active = opB < (INT16_MIN / opA);
+                }
+            } else {
+                if (POSITIVE(opB)) {
+                    OF.active = opA < (INT16_MIN / opB);
+                } else {
+                    OF.active = (opA != 0) && (opB < (INT16_MAX / opA));
+                }
+            }
+            break;
+        case DIV:
+        case DIVI:
+        case MOD:
+        case MODI:
+            OF.active = (opB == 0) || ((opA == INT16_MIN) && (opB == -1));
+            break;
+        case NOT:
+        case NOTI:
+            OF.active = (opA == INT16_MIN);
+            break;
+    }
 }
 
 void checkFlags() {
@@ -130,22 +164,21 @@ uint16_t main_ALU_fcn()
         case MULI:
             // perform the MUL operation
             accumulator = opA * opB;
+            check_for_OF();
             break;
         case DIV:
         case DIVI:
             // perform the DIV operation
             if (opB)
                 accumulator = opA / opB;
-            else
-                accumulator = -1;
+            check_for_OF();
             break;
         case MOD:
         case MODI:
             // perform the MOD operation
             if (opB)
                 accumulator = opA % opB;
-            else
-                accumulator = -1;
+            check_for_OF();
             break;
         case AND:
         case ANDI:
@@ -166,6 +199,7 @@ uint16_t main_ALU_fcn()
         case NOTI:
             // perform the NOT operation on the first operand
             accumulator = ~opA;
+            check_for_OF();
             break;
         case TST: // these are the same
         case TSTI: // these are the same
