@@ -131,6 +131,9 @@ class ALUInstruction(Instruction):
         return bytearray(result.to_bytes(2))
     
     def get(instruction):
+        if len(instruction) == 2 and instruction[0] in ["dec", "inc"]:
+            instruction.append("#0")
+
         if "#" in instruction[2]:
             return ImmediateALUInstruction(instruction)
         return ALUInstruction(instruction)

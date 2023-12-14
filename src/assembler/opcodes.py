@@ -24,10 +24,8 @@ stackInstructions = {
 }
 
 ALUInstructions = {
-    "ADD": 0b011100,
-    "SUB": 0b011101,
-    "INC": 0b011110,
-    "DEC": 0b011111,
+    "ADD": 0b011110,
+    "SUB": 0b011111,
     "CMP": 0b100000,
     "TST": 0b100001,
     "LSR": 0b100010,
@@ -41,7 +39,9 @@ ALUInstructions = {
     "AND": 0b101010,
     "OR":  0b101011,
     "XOR": 0b101100,
-    "NOT": 0b101101
+    "NOT": 0b101101,
+    "INC": -1,
+    "DEC": -1
 }
 
 immediateALUInstructions = {

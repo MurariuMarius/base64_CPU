@@ -18,10 +18,8 @@
 #define PSH 0b010010
 #define POP 0b010011
 
-#define ADD 0b011100
-#define SUB 0b011101
-#define INC 0b011110
-#define DEC 0b011111
+#define ADD 0b011110
+#define SUB 0b011111
 #define CMP 0b100000
 #define TST 0b100001
 #define LSR 0b100010

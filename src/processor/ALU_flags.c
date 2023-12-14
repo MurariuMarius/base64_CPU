@@ -176,12 +176,10 @@ uint16_t main_ALU_fcn()
             ZF.active = (opA == opB);
             accumulator = opA;
             break;
-        case INC:
         case INCI:
             // perform the INC operation on the first operand
             accumulator = opA + 1;
             break;
-        case DEC:
         case DECI:
             // perform the DEC operation on the first operand
             accumulator = opA - 1;
@@ -198,7 +196,6 @@ uint16_t main_ALU_fcn()
         switch (instruction.val) {
             case SUB:
             case SUBI:
-            case DEC:
             case DECI:
                 if (accumulator > opA) {
                     NF = ACTIVE;
