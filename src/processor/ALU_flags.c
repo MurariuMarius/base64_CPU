@@ -12,7 +12,7 @@ int16_t opB;
 signal ZF,NF,CF,OF;
 static int16_t accumulator;
 
-static void check_for_OF()
+static void setOF()
 {
     switch (instruction.val) {
         case ADD:
@@ -113,7 +113,6 @@ uint16_t main_ALU_fcn()
             if ((uint32_t)(opA + opB) > UINT16_MAX)
                 CF = ACTIVE;
             accumulator = opA + opB;
-            check_for_OF();
             break;
         case SUB:
         case SUBI:
@@ -122,7 +121,6 @@ uint16_t main_ALU_fcn()
             if (opA < opB)
                 CF = ACTIVE;
             accumulator = opA - opB;
-            check_for_OF();
             break;
         case LSR:
         case LSRI:
@@ -164,21 +162,18 @@ uint16_t main_ALU_fcn()
         case MULI:
             // perform the MUL operation
             accumulator = opA * opB;
-            check_for_OF();
             break;
         case DIV:
         case DIVI:
             // perform the DIV operation
             if (opB)
                 accumulator = opA / opB;
-            check_for_OF();
             break;
         case MOD:
         case MODI:
             // perform the MOD operation
             if (opB)
                 accumulator = opA % opB;
-            check_for_OF();
             break;
         case AND:
         case ANDI:
@@ -199,7 +194,6 @@ uint16_t main_ALU_fcn()
         case NOTI:
             // perform the NOT operation on the first operand
             accumulator = ~opB;
-            check_for_OF();
             break;
         case TST: // these are the same
         case TSTI: // these are the same
@@ -223,6 +217,8 @@ uint16_t main_ALU_fcn()
             accumulator = -1;
         }
     }
+
+    setOF();
     
     if (accumulator == 0)
         ZF = ACTIVE;
