@@ -46,7 +46,7 @@ static void check_for_OF()
             break;
         case NOT:
         case NOTI:
-            OF.active = (opA == INT16_MIN);
+            OF.active = (opB == INT16_MIN);
             break;
     }
 }
@@ -198,7 +198,7 @@ uint16_t main_ALU_fcn()
         case NOT:
         case NOTI:
             // perform the NOT operation on the first operand
-            accumulator = ~opA;
+            accumulator = ~opB;
             check_for_OF();
             break;
         case TST: // these are the same
