@@ -4,10 +4,10 @@
 #include "internals.h"
 #include "opcodes.h"
 
-uint16_t opA;
-uint16_t opB;
+int16_t opA;
+int16_t opB;
 signal ZF,NF,CF,OF;
-static uint16_t accumulator;
+static int16_t accumulator;
 
 void check_for_OF()
 {

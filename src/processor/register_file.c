@@ -39,10 +39,10 @@ static uint16_t getIndex() {
 uint16_t sign_extend_9_to_16_bits()
 {
     ext_immediate = 0U;
-    uint8_t i;
-    for (i = 15; i >= 9; i--)
+    int sign = (immediate.val & (1 << 8)) != 0;
+    for (uint8_t i = 15; i >= 9; i--)
     {
-        ext_immediate |= ((immediate.val & (1 << 9)) << i);
+        ext_immediate |= (sign << i);
     }
     ext_immediate |= immediate.val;
 
@@ -98,5 +98,5 @@ void register_file()
         store(*reg, getIndex());
     }
 
-    printf("RX: %d; RY: %d\n", Rx, Ry);
+    printf("RX: %d; RY: %d\n", (int16_t)Rx, (int16_t)Ry);
 }

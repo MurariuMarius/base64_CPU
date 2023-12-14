@@ -147,7 +147,7 @@ class ImmediateALUInstruction(Instruction):
     def __validate(self, instruction):
         if len(instruction) != 3 or \
             instruction[1].upper() not in REGISTERS or \
-            not re.match("^#[0-9]*$", str(instruction[2])):
+            not re.match("^#-?[0-9]*$", str(instruction[2])):
             raise InvalidInstructionException(instruction)
         return instruction[0]+"I", REGISTERS[instruction[1].upper()], int(instruction[2].strip("#"))
 
