@@ -152,9 +152,6 @@ uint16_t main_ALU_fcn()
                 accumulator |= sign.active << 15;
             }
             break;
-        case MOV:
-            accumulator = opB;
-            break;
         case MUL:
         case MULI:
             if ((int32_t)(opA * opB) > INT16_MAX || (int32_t)(opA * opB) < INT16_MIN) {
