@@ -1,6 +1,6 @@
 import re
 
-from exceptions import LabelAlreadyDefinedException, InvalidInstructionException
+from exceptions import LabelAlreadyDefinedException, InvalidOpcodeException
 from instructions import BranchInstruction, MemoryInstruction, ALUInstruction, HaltInstruction, StackInstruction
 import opcodes
 
@@ -85,6 +85,6 @@ class InstructionParser:
         elif opcode.upper() in opcodes.HLT:
             instruction = HaltInstruction()
         else:
-            raise InvalidInstructionException(instruction)
+            raise InvalidOpcodeException(instruction)
         return instruction
     

@@ -5,3 +5,8 @@ class LabelAlreadyDefinedException(Exception):
 class InvalidInstructionException(Exception):
     def __init__(self, message) -> None:
         super().__init__(f'Operation {message} cannot be parsed')
+
+class InvalidOpcodeException(InvalidInstructionException):
+    def __init__(self, message) -> None:
+        super().__init__(message)
+        
