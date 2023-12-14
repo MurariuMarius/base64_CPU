@@ -108,8 +108,10 @@ uint16_t main_ALU_fcn()
         {
         case ADD:
         case ADDI:
-            if ((uint32_t)(opA + opB) > UINT16_MAX)
+            if ((int32_t)(opA + opB) > INT16_MAX || (int32_t)(opA + opB) < INT16_MIN) {
                 CF = ACTIVE;
+            }
+
             accumulator = opA + opB;
             break;
         case SUB:
@@ -155,6 +157,10 @@ uint16_t main_ALU_fcn()
             break;
         case MUL:
         case MULI:
+            if ((int32_t)(opA * opB) > INT16_MAX || (int32_t)(opA * opB) < INT16_MIN) {
+                CF = ACTIVE;
+            }
+
             accumulator = opA * opB;
             break;
         case DIV:
@@ -211,12 +217,13 @@ uint16_t main_ALU_fcn()
         ZF = ACTIVE;
     else
         switch (instruction.val) {
-            case SUB:
-            case SUBI:
-            case DECI:
-                if (accumulator > opA) {
-                    NF = ACTIVE;
-                }  
+            case TST:
+            case TSTI:
+            case CMP:
+            case CMPI:
+                break;
+            default:
+                NF.active = accumulator < 0;
         }
     
     printf("ALU: Flags: ZF %d, NF %d, CF %d, OF %d\n", ZF.active, NF.active, CF.active, OF.active);
