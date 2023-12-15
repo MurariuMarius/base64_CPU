@@ -48,6 +48,11 @@ static void setOF()
         case NOTI:
             OF.active = (opB == INT16_MIN);
             break;
+        case INCI:
+            OF.active = POSITIVE(opA) && NEGATIVE(accumulator);
+            break;
+        case DECI:
+            OF.active = NEGATIVE(opA) && POSITIVE(accumulator); 
     }
 }
 
