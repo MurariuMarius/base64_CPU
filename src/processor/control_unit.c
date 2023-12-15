@@ -79,9 +79,9 @@ void CU_handleNextInstruction() {
     if(instruction.val >= BRZ && instruction.val < RET){
         br_oth = ACTIVE;
         checkFlags();
-        if(instruction.val == BRA || instruction.val == JMP){
+        if(instruction.val == BRA || instruction.val == JMS){
             br_always = ACTIVE;
-            if (instruction.val == JMP) {
+            if (instruction.val == JMS) {
                 stackOP.val = 0b01;
                 jmpS = ACTIVE;
             }

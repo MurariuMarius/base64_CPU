@@ -14,7 +14,7 @@ branchInstructions = {
     "BRC": 0b000110,
     "BRO": 0b000111,
     "BRA": 0b001000,
-    "JMP": 0b010000,
+    "JMS": 0b010000,
     "RET": 0b010001,
 }
 

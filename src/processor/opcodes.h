@@ -12,7 +12,7 @@
 #define BRC 0b000110
 #define BRO 0b000111
 #define BRA 0b001000
-#define JMP 0b010000
+#define JMS 0b010000
 #define RET 0b010001
 
 #define PSH 0b010010

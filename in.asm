@@ -1,7 +1,7 @@
-MOV X, #15
+MOV X, #10
 PSH Y
 PSH X
-JMP fib
+JMS fib
 POP X
 POP Y
 ADD X, #0
@@ -17,7 +17,7 @@ DEC X ; preagatire X - 1
 
 PSH X ; pastreaza X
 PSH X
-JMP fib
+JMS fib
 POP Y ; Y = fib(X - 1)
 POP X
 
@@ -25,7 +25,7 @@ DEC X ; pregatire X - 2
 
 PSH Y ; pastreaza Y
 PSH X
-JMP fib
+JMS fib
 POP X  ; X = fib(X - 2)
 POP Y
 
