@@ -111,6 +111,10 @@ uint16_t main_ALU_fcn()
     {
         switch (instruction.val)
         {
+        case SUB:
+        case SUBI:
+            opB = - opB;
+
         case ADD:
         case ADDI:
             if ((int32_t)(opA + opB) > INT16_MAX || (int32_t)(opA + opB) < INT16_MIN) {
@@ -118,13 +122,6 @@ uint16_t main_ALU_fcn()
             }
 
             accumulator = opA + opB;
-            break;
-        case SUB:
-        case SUBI:
-
-            if (opA < opB)
-                CF = ACTIVE;
-            accumulator = opA - opB;
             break;
         case LSR:
         case LSRI:
