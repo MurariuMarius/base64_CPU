@@ -44,6 +44,10 @@ void CU_handleNextInstruction() {
             str = ACTIVE;
             input();
             break;
+
+        case OUT:
+            output();
+            break;
             
         case MOVI:
             immOp = ACTIVE;

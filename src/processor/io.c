@@ -21,3 +21,15 @@ void input() {
     }
     store(readWords, requestedWords);
 }
+
+void output() {
+    type = OUT;
+    uint16_t requestedWords = sign_extend_9_to_16_bits();
+    uint16_t wordsOut = 0;
+    request(type);
+    while (wordsOut < requestedWords) {
+        IO_data = load(wordsOut++);
+        printf("IO: Wrote %04x\n", IO_data);
+        write();
+    }
+}

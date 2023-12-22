@@ -86,10 +86,12 @@ uint16_t getOperandRegister();
 
 /* IO  */
 void input();
+void output();
 
 /* DRIVER */
 void read();
 void request(signal type);
+void write();
 
 // void initializePC();
 // void testExtendUnit(uint10_t in);

@@ -49,6 +49,7 @@ void read() {
     int wordsRead = fread(&buffer, sizeof(uint16_t), 1, in);
 
     // Convert to big endian ordering
+    // (assuming that the machine running the program has little endinan ordering)
     IO_data = buffer >> 8;
     IO_data |= (0xFF & buffer) << 8;
 
@@ -56,4 +57,13 @@ void read() {
     if (wordsRead == 0) {
         send = INACTIVE;
     }
+}
+
+void write() {
+    // Convert to big endian ordering
+    // (assuming that the machine running the program has little endinan ordering)
+    uint16_t buffer = IO_data >> 8;
+    buffer |= (0xFF & IO_data) << 8;
+
+    fwrite(&buffer, sizeof(uint16_t), 1, out);
 }

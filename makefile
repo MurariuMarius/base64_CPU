@@ -14,7 +14,7 @@ compile:
 	 -o simulate
 
 run: compile
-	./simulate out.bin out.bin
+	./simulate out.bin out.bin sim_out.bin
 
 assemble:
 	python3 ${ASSM_PATH}/main.py in.asm
