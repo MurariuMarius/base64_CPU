@@ -15,11 +15,11 @@ class BranchInstruction(Instruction):
     def __init__(self, instruction, labels):
         opcode, address = self.__validate(instruction, labels)
 
-        super().__init__(branchInstructions.get(opcode.upper()))
+        super().__init__(branchInstructions.get(opcode))
         self.address = address
     
     def __validate(self, instruction, labels):
-        if len(instruction) == 1 and instruction[0] == 'ret':
+        if len(instruction) == 1 and instruction[0] == 'RET':
             return instruction[0], 0
 
         if len(instruction) != 2:
@@ -41,17 +41,17 @@ class MemoryInstruction(Instruction):
     def __init__(self, instruction):
         opcode, registerAddress, immediate = self.__validate(instruction)
 
-        super().__init__(memoryInstructions.get(opcode.upper()))
+        super().__init__(memoryInstructions.get(opcode))
         self.registerAddress = registerAddress
         self.immediate = immediate
     
     def __validate(self, instruction):
         if len(instruction) != 3 or \
-            instruction[1].upper() not in REGISTERS or \
+            instruction[1] not in REGISTERS or \
             not instruction[2].isdigit() or \
             int(instruction[2]) > MEMORY_SIZE:
             raise InvalidInstructionException(instruction)
-        return instruction[0], REGISTERS[instruction[1].upper()], int(instruction[2])
+        return instruction[0], REGISTERS[instruction[1]], int(instruction[2])
 
     def __repr__(self) -> str:
         return super().__repr__() + f'{self.registerAddress}|{self.immediate}'
@@ -70,15 +70,15 @@ class RegisterIndirectMemoryInstruction(Instruction):
     def __init__(self, instruction):
         opcode, registerAddress, indirectRegister, offset = self.__validate(instruction)
 
-        super().__init__(indirectMemoryInstructions.get(opcode.upper() + "_RI"))
+        super().__init__(indirectMemoryInstructions.get(opcode + "_RI"))
         self.registerAddress = registerAddress
         self.indirectRegister = indirectRegister
         self.offset = offset
     
     def __validate(self, instruction):
         def getRegister(operand):
-            if match := re.match('^(sp)|[a-z]', operand):
-                register = match.group().upper()
+            if match := re.match('^(SP)|[A-Z]', operand):
+                register = match.group()
                 if register == 'SP':
                     return 0x3
                 if register in REGISTERS:
@@ -93,12 +93,12 @@ class RegisterIndirectMemoryInstruction(Instruction):
 
 
         if len(instruction) != 3 or \
-            instruction[1].upper() not in REGISTERS or \
-            not re.match('^\[((sp)|[a-z])([\+-][0-9]{1,3})?\]$', instruction[2]):
+            instruction[1] not in REGISTERS or \
+            not re.match('^\[((SP)|[A-Z])([\+-][0-9]{1,3})?\]$', instruction[2]):
             raise InvalidInstructionException(instruction)
         
         instruction[2] = instruction[2].strip('[]')
-        return instruction[0], REGISTERS[instruction[1].upper()], getRegister(instruction[2]), getOffset(instruction[2])
+        return instruction[0], REGISTERS[instruction[1]], getRegister(instruction[2]), getOffset(instruction[2])
 
     def __repr__(self) -> str:
         return super().__repr__() + f'{self.registerAddress}|{self.indirectRegister}|{self.offset}'
@@ -112,16 +112,16 @@ class ALUInstruction(Instruction):
     def __init__(self, instruction):
         opcode, registerAddress, operandRegisterAddress = self.__validate(instruction)
 
-        super().__init__(ALUInstructions.get(opcode.upper()))
+        super().__init__(ALUInstructions.get(opcode))
         self.registerAddress = registerAddress
         self.operandRegisterAddress = operandRegisterAddress
 
     def __validate(self, instruction):
         if len(instruction) != 3 or \
-            instruction[1].upper() not in REGISTERS or \
-            instruction[2].upper() not in REGISTERS:
+            instruction[1] not in REGISTERS or \
+            instruction[2] not in REGISTERS:
             raise InvalidInstructionException(instruction)
-        return instruction[0], REGISTERS[instruction[1].upper()], REGISTERS[instruction[2].upper()]
+        return instruction[0], REGISTERS[instruction[1]], REGISTERS[instruction[2]]
 
     def __repr__(self) -> str:
         return super().__repr__() + f"{self.registerAddress}|{self.operandRegisterAddress}"
@@ -131,7 +131,7 @@ class ALUInstruction(Instruction):
         return bytearray(result.to_bytes(2))
     
     def get(instruction):
-        if len(instruction) == 2 and instruction[0] in ["dec", "inc"]:
+        if len(instruction) == 2 and instruction[0] in ["DEC", "INC"]:
             instruction.append("#0")
 
         if "#" in instruction[2]:
@@ -143,16 +143,16 @@ class ImmediateALUInstruction(Instruction):
     def __init__(self, instruction):
         opcode, registerAddress, immediate = self.__validate(instruction)
 
-        super().__init__(immediateALUInstructions.get(opcode.upper()))
+        super().__init__(immediateALUInstructions.get(opcode))
         self.registerAddress = registerAddress
         self.immediate = immediate
 
     def __validate(self, instruction):
         if len(instruction) != 3 or \
-            instruction[1].upper() not in REGISTERS or \
+            instruction[1] not in REGISTERS or \
             not re.match("^#-?[0-9]*$", str(instruction[2])):
             raise InvalidInstructionException(instruction)
-        return instruction[0]+"I", REGISTERS[instruction[1].upper()], int(instruction[2].strip("#"))
+        return instruction[0]+"I", REGISTERS[instruction[1]], int(instruction[2].strip("#"))
 
     def __repr__(self) -> str:
         return super().__repr__() + f"{self.registerAddress}|{self.immediate}"
@@ -166,14 +166,14 @@ class StackInstruction(Instruction):
     def __init__(self, instruction):
         opcode, registerAddress = self.__validate(instruction)
 
-        super().__init__(stackInstructions.get(opcode.upper()))
+        super().__init__(stackInstructions.get(opcode))
         self.registerAddress = registerAddress
     
     def __validate(self, instruction):
         if len(instruction) != 2 or \
-            instruction[1].upper() not in REGISTERS:
+            instruction[1] not in REGISTERS:
             raise InvalidInstructionException(instruction)
-        return instruction[0], REGISTERS[instruction[1].upper()]
+        return instruction[0], REGISTERS[instruction[1]]
         
     def __repr__(self) -> str:
         return super().__repr__() + f"{self.registerAddress}"

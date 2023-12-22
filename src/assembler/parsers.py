@@ -14,7 +14,7 @@ class AssemblyFileParser:
     def parse(self):
         with open(self.assemblyFileName, "r") as assemblyFile:
             for line in assemblyFile:
-                line = self.lineParser.extract(line.strip().lower())
+                line = self.lineParser.extract(line.strip().upper())
                 if line:
                     self.instructions.append(line)
             
@@ -47,7 +47,7 @@ class AssemblyFileParser:
 
 class LineParser:
     def __init__(self):
-        self.labelPattern = "^[_a-z0-9]*:"
+        self.labelPattern = "^[_A-Z0-9]*:"
 
     def getInstruction(self, line, labels : dict):
         if labels.get(line[0]):
@@ -74,15 +74,15 @@ class LineParser:
 class InstructionParser:
     def parse(instruction, labels : dict):
         opcode = instruction[0]
-        if opcode.upper() in opcodes.branchInstructions:
+        if opcode in opcodes.branchInstructions:
             instruction = BranchInstruction(instruction, labels)
-        elif opcode.upper() in opcodes.memoryInstructions:
+        elif opcode in opcodes.memoryInstructions:
             instruction = MemoryInstruction.get(instruction)
-        elif opcode.upper() in opcodes.stackInstructions:
+        elif opcode in opcodes.stackInstructions:
             instruction = StackInstruction(instruction)
-        elif opcode.upper() in opcodes.ALUInstructions:
+        elif opcode in opcodes.ALUInstructions:
             instruction = ALUInstruction.get(instruction)
-        elif opcode.upper() in opcodes.HLT:
+        elif opcode in opcodes.HLT:
             instruction = HaltInstruction()
         else:
             raise InvalidOpcodeException(instruction)
