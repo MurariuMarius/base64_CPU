@@ -23,6 +23,11 @@ stackInstructions = {
     "POP": 0b010011
 }
 
+IOInstructions = {
+   "IN": 0b010110,
+   "OUT": 0b010111
+}
+
 ALUInstructions = {
     "ADD": 0b011110,
     "SUB": 0b011111,
