@@ -38,6 +38,7 @@ static uint16_t getIndex() {
 
 uint16_t sign_extend_9_to_16_bits()
 {
+    Demux2();
     ext_immediate = 0U;
     int sign = (immediate.val & (1 << 8)) != 0;
     for (uint8_t i = 15; i >= 9; i--)
@@ -66,7 +67,6 @@ uint16_t getOperandRegister() {
 
 void register_file()
 {
-    Demux2();
     sign_extend_9_to_16_bits();
 
     uint16_t *reg = getSelectedRegister();

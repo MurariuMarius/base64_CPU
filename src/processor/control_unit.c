@@ -39,6 +39,11 @@ void CU_handleNextInstruction() {
         case HLT:
             end = ACTIVE;
             break;
+
+        case IN:
+            str = ACTIVE;
+            input();
+            break;
             
         case MOVI:
             immOp = ACTIVE;

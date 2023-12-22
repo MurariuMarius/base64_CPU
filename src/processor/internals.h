@@ -46,9 +46,12 @@ extern signal immOp;
 extern signal jmpS;
 extern signal ret;
 extern uint2_t stackOP;
+extern signal send;
+
 
 /* BUSSES */
 extern uint6_t instruction;
+extern uint16_t IO_data;
 
 /*  INSTRUCTION MEMORY  */
 
@@ -80,6 +83,13 @@ void register_file();
 uint16_t *getSelectedRegister();
 uint16_t sign_extend_9_to_16_bits();
 uint16_t getOperandRegister();
+
+/* IO  */
+void input();
+
+/* DRIVER */
+void read();
+void request(signal type);
 
 // void initializePC();
 // void testExtendUnit(uint10_t in);
