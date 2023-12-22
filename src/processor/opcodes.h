@@ -24,8 +24,8 @@
 #define TST 0b100001
 #define LSR 0b100010
 #define LSL 0b100011
-#define RSR 0b100100
-#define RSL 0b100101
+#define SAR 0b100100
+#define SAL 0b100101
 #define MOV 0b100110
 #define MUL 0b100111
 #define DIV 0b101000
@@ -41,8 +41,8 @@
 #define TSTI 0b110001
 #define LSRI 0b110010
 #define LSLI 0b110011
-#define RSRI 0b110100
-#define RSLI 0b110101
+#define SARI 0b110100
+#define SALI 0b110101
 #define MOVI 0b110110
 #define MULI 0b110111
 #define DIVI 0b111000

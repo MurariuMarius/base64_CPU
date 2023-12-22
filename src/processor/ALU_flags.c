@@ -134,16 +134,16 @@ uint16_t main_ALU_fcn()
             break;
         case LSL:
         case LSLI:
-        case RSL:
-        case RSLI:
+        case SAL:
+        case SALI:
             accumulator = opA;
             for (uint8_t i = 0; i < opB; i++) {
                 CF.active = NEGATIVE(accumulator);
                 accumulator <<= 1;
             }
             break;
-        case RSR:
-        case RSRI:
+        case SAR:
+        case SARI:
             accumulator = opA;
 
             signal sign = (signal){ NEGATIVE(opA) };
