@@ -9,6 +9,9 @@
 #define ACTIVE (signal){1}
 #define INACTIVE (signal){0}
 
+#define IO_IN INACTIVE
+#define IO_OUT ACTIVE
+
 /*  TYPES   */
 
 typedef struct {
@@ -47,7 +50,8 @@ extern signal jmpS;
 extern signal ret;
 extern uint2_t stackOP;
 extern signal send;
-
+extern signal IO_type;
+extern signal IO_Op;
 
 /* BUSSES */
 extern uint6_t instruction;
@@ -85,8 +89,7 @@ uint16_t sign_extend_9_to_16_bits();
 uint16_t getOperandRegister();
 
 /* IO  */
-void input();
-void output();
+void io();
 
 /* DRIVER */
 void read();

@@ -15,6 +15,8 @@ signal str;
 signal jmpS;
 signal ret;
 signal immOp;
+signal IO_type;
+signal IO_Op;
 
 
 static void resetSignals() {
@@ -30,6 +32,7 @@ static void resetSignals() {
     str = INACTIVE;
     ldm = INACTIVE;
     immOp = INACTIVE;
+    IO_Op = INACTIVE;
 }
 
 void CU_handleNextInstruction() {
@@ -41,12 +44,16 @@ void CU_handleNextInstruction() {
             break;
 
         case IN:
+            IO_Op = ACTIVE;
+            IO_type = IO_IN;
             str = ACTIVE;
-            input();
+            io();
             break;
 
         case OUT:
-            output();
+            IO_Op = ACTIVE;
+            IO_type = IO_OUT;
+            io();
             break;
             
         case MOVI:

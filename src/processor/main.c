@@ -37,8 +37,8 @@ int main(int argc, char **argv) {
     fclose(out);
 }
 
-void request(signal type) {
-    if (!type.active) {
+void request(signal IO_type) {
+    if (!IO_type.active) {
         send = ACTIVE;
     }
 }
