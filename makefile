@@ -6,6 +6,7 @@ compile:
 	 ${SIM_PATH}/ALU_flags.c \
 	 ${SIM_PATH}/control_unit.c \
 	 ${SIM_PATH}/data_memory.c \
+	 ${SIM_PATH}/encoder.c \
 	 ${SIM_PATH}/instruction_memory.c \
 	 ${SIM_PATH}/io.c \
 	 ${SIM_PATH}/program_counter.c \
