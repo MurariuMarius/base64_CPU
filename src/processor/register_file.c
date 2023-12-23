@@ -12,9 +12,16 @@ uint16_t ext_immediate;
 
 static uint16_t Rx,Ry;
 
+static uint10_t mux() {
+    if (enc.active) {
+        return getInstruction();
+    }
+    return getAddressRegisterFromRF();
+}
+
 static void Demux2()
 {
-    uint10_t arguments = getAddressRegisterFromRF();
+    uint10_t arguments = mux();
     reg_select.active = ((arguments.val >> 9) & 0x001); // msb is 1 => true, else false
     immediate.val = arguments.val & 0x01FF;
 }

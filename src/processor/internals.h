@@ -52,6 +52,7 @@ extern uint2_t stackOP;
 extern signal send;
 extern signal IO_type;
 extern signal IO_Op;
+extern signal enc;
 
 /* BUSSES */
 extern uint6_t instruction;
@@ -87,6 +88,9 @@ void register_file();
 uint16_t *getSelectedRegister();
 uint16_t sign_extend_9_to_16_bits();
 uint16_t getOperandRegister();
+
+void fetchNextInstruction();
+uint10_t getInstruction();
 
 /* IO  */
 void io();
