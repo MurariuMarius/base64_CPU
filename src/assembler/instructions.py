@@ -183,6 +183,28 @@ class StackInstruction(Instruction):
         return bytearray(result.to_bytes(2))
 
 
+class IOInstruction(Instruction):
+    def __init__(self, instruction):
+        opcode, value = self.__validate(instruction)
+
+        super().__init__(IOInstructions.get(opcode))
+        self.value = value
+
+    def __validate(self, instruction):
+        if len(instruction) != 2 or \
+            not instruction[1].isdigit() or \
+            int(instruction[1]) > MEMORY_SIZE or int(instruction[1]) < 0:
+            raise InvalidInstructionException(instruction)
+        return instruction[0], int(instruction[1])
+
+    def __repr__(self) -> str:
+        return super().__repr__() + f"{self.value}"
+    
+    def getBytes(self):
+        result = (self.opcode << 10) | (0x3FF & self.value)
+        return bytearray(result.to_bytes(2))
+
+
 class HaltInstruction(Instruction):
     def __init__(self):
         super().__init__(HLT["HLT"])

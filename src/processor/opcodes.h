@@ -18,6 +18,9 @@
 #define PSH 0b010010
 #define POP 0b010011
 
+#define IN 0b010110
+#define OUT 0b010111
+
 #define ADD 0b011110
 #define SUB 0b011111
 #define CMP 0b100000
