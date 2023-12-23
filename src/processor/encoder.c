@@ -32,50 +32,58 @@ static uint8_t uPC;
 static signal endProc;
 
 static signal *controlSignals[CF_SIZE] = {
-    &endProc,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    (signal *)&stackOP, 
+    NULL,   // stackOP is uint2_t
     &enc,
     &immOp,
-    &ldm
+    &ldm,
+    &str,
+    &lse,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    &endProc
 };
 
 static uint3_t conditionSelect;
 static uint8_t branchAddress;
 static uint25_t controlField;
 
+/**
+ * Control field signals:
+ * http://tinyurl.com/4w52dawb
+*/
 uInstruction controlMemory[uPROGRAM_LENGTH] = {
-    (uint3_t){0}, (uint25_t){0b1110000000000000000000000},
-    (uint3_t){7}, (uint25_t){0b0000000000000000000000011},
-    (uint3_t){0}, (uint25_t){0b1110000000000000000000000},
-    (uint3_t){0}, (uint25_t){0b1110000000000000000000000},
-    (uint3_t){0}, (uint25_t){0b0000000000000000000000001}
+
+//                             4321098765432109876543210
+    (uint3_t){0}, (uint25_t){0b0000000000000000000011100},  // LDR Y, 360
+    (uint3_t){0}, (uint25_t){0b0000000000000000000101101},  // PSH X
+    (uint3_t){0}, (uint25_t){0b0000000000000000001001100},  // MOV X, #0
+    (uint3_t){0}, (uint25_t){0b0000000000000000001001100},  // MOV Y, #0
+    (uint3_t){0}, (uint25_t){0b0000000000000000000010100},  // LDR Y, [SP+1]
+    (uint3_t){0}, (uint25_t){0b1000000000000000000000000}   // endProc
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
-    {0b1101101000},
-    {0},
-    {0b1101101010},
-    {0b1101101011},
+    {0b1101101000}, // LDR Y, 360
+    {0b1000000000}, // PSH X
+    {0b0000000000}, // MOV X, #0
+    {0b1000000000}, // MOV Y, #0
+    {0b1110000001}, // LDR Y, [SP+1]
     {0}
 };
 
@@ -117,8 +125,16 @@ void executeMicroprogram() {
 }
 
 static void activateControlSignals() {
-    for (uint8_t i = 0 ; i < CF_SIZE; i++) {
+
+    uint8_t i = 0;
+
+    stackOP.val = (controlField.val & (1 << i)) != 0;
+    i++;
+    stackOP.val |= ((controlField.val & (1 << i)) != 0) << 1;
+    
+    for (i; i < CF_SIZE; i++) {
         if (!controlSignals[i]) continue;
+
         *(controlSignals[i]) = (controlField.val & (1 << i)) ? ACTIVE : INACTIVE;
     }
 
