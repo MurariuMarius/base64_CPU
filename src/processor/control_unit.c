@@ -17,6 +17,7 @@ signal ret;
 signal immOp;
 signal IO_type;
 signal IO_Op;
+signal enc;
 
 
 static void resetSignals() {
@@ -33,6 +34,7 @@ static void resetSignals() {
     ldm = INACTIVE;
     immOp = INACTIVE;
     IO_Op = INACTIVE;
+    enc = INACTIVE;
 }
 
 void CU_handleNextInstruction() {
@@ -41,6 +43,10 @@ void CU_handleNextInstruction() {
     switch(instruction.val){
         case HLT:
             end = ACTIVE;
+            break;
+
+        case ENC:
+            executeMicroprogram();
             break;
 
         case IN:

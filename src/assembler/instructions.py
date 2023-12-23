@@ -205,6 +205,14 @@ class IOInstruction(Instruction):
         return bytearray(result.to_bytes(2))
 
 
+class EncodeInstruction(Instruction):
+    def __init__(self):
+        super().__init__(ENC["ENC"])
+
+    def getBytes(self):
+        return bytearray((self.opcode << 10).to_bytes(2))
+
+
 class HaltInstruction(Instruction):
     def __init__(self):
         super().__init__(HLT["HLT"])

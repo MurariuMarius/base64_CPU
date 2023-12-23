@@ -89,7 +89,7 @@ uint16_t *getSelectedRegister();
 uint16_t sign_extend_9_to_16_bits();
 uint16_t getOperandRegister();
 
-void fetchNextInstruction();
+void executeMicroprogram();
 uint10_t getInstruction();
 
 /* IO  */
