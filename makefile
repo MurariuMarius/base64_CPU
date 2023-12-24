@@ -12,6 +12,7 @@ compile:
 	 ${SIM_PATH}/program_counter.c \
 	 ${SIM_PATH}/register_file.c \
 	 ${SIM_PATH}/stack_pointer.c \
+	 ${SIM_PATH}/uprogram_sequencer.c \
 	 -o simulate
 
 run: compile

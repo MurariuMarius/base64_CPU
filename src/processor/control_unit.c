@@ -46,7 +46,7 @@ void CU_handleNextInstruction() {
             break;
 
         case ENC:
-            executeMicroprogram();
+            encode();
             break;
 
         case IN:
