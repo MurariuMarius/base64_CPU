@@ -36,7 +36,7 @@ static uint16_t sign_extend_7_to_16_bits(uint16_t value) {
     return out;
 }
 
-static uint16_t getIndex() {
+uint16_t getIndex() {
     uint16_t offset = GET_OFFSET(sign_extend_9_to_16_bits());
     offset = sign_extend_7_to_16_bits(offset);
     printf("RF: Offset %04x\n", offset);

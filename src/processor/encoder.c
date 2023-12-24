@@ -3,6 +3,8 @@
 
 #include "uprogram_sequencer.h"
 
+#define uPROGRAM_LENGTH 57
+
 extern signal ZF;
 
 /**
@@ -11,31 +13,31 @@ extern signal ZF;
 */
 uInstruction controlMemory[uPROGRAM_LENGTH] = {
 
-//                             432109876543210
+// PREPARE: 0                  432109876543210
     (uint3_t){0}, (uint15_t){0b000000000011100},  // LDR Y, 360
-    (uint3_t){7}, (uint15_t){0b000000000001000},  // branch_always
     (uint3_t){0}, (uint15_t){0b000000000101101},  // PSH X
     (uint3_t){0}, (uint15_t){0b000000001001100},  // MOV X, #0
     (uint3_t){0}, (uint15_t){0b000000001001100},  // MOV Y, #0
-    (uint3_t){0}, (uint15_t){0b000000000010100},  // LDR Y, [SP+1]
-    (uint3_t){0}, (uint15_t){0b100000000000000},  // ret
-    (uint3_t){0}, (uint15_t){0b000000001001100},  // MOV Y, #0
-    (uint3_t){0}, (uint15_t){0b011110000000000},  // sbr
-    (uint3_t){7}, (uint15_t){0b000000000000010},  // jmp
+    (uint3_t){0}, (uint15_t){0b000010000000000},  // reset
+// BEGIN: 5                    432109876543210
+    (uint3_t){0}, (uint15_t){0b001000000000000},  // LDR R_IN, [X]
+// SCAN: 6
+    (uint3_t){0}, (uint15_t){0b000000000000000},  // if state = 0 go to S0 - TODO
+    (uint3_t){0}, (uint15_t){0b000000000000000},  // if state = 1 go to S1 - TODO
+    (uint3_t){0}, (uint15_t){0b001010000000000},  // BUFF3[3:0] = R_IN[15:12]
     (uint3_t){0}, (uint15_t){0b100010000000000}   // endProc
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
     {0b1101101000}, // LDR Y, 360
-    {0},
     {0b1000000000}, // PSH X
     {0b0000000000}, // MOV X, #0
     {0b1000000000}, // MOV Y, #0
-    {0b1110000001}, // LDR Y, [SP+1]
-    {0}, // ret
-    {0b1000000000}, // MOV Y, #0
-    {0}, // sbr
-    {0}, // jmp
+    {0}, // reset
+    {0b0000000000}, // LDR R_IN, [X]
+    {0}, // if state = 0
+    {0}, // if state = 1
+    {0}, // BUFF3[3:0] = R_IN[15:12]
     {0}, // endProc
 };
 
@@ -73,14 +75,36 @@ static signal loadAddress() {
     return INACTIVE;
 }
 
+void reset() {
+    selReg.val = 0;
+    buff_1.val = 0;
+    buff_2.val = 0;
+    state.val = 0;
+}
+
+void reset_Buff_3() {
+    buff_3.val = 0;
+}
+
+void reset_R_OUT() {
+    R_OUT = 0;
+}
+
+void load_R_IN() {
+    R_IN = load(getIndex());
+}
+
+void ld30() {
+    buff_3.val = ((R_IN >> 12) << 2) | (buff_3.val & 0x3);
+}
 
 void (*signalActions[])() = {
     &nop,
-    &nop,
-    &nop,
-    &nop,
-    &nop,
-    &nop,
+    &reset,
+    &reset_Buff_3,
+    &reset_R_OUT,
+    &load_R_IN,
+    &ld30,
     &nop,
     &nop,
     &nop,

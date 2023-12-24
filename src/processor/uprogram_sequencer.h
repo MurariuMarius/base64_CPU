@@ -5,7 +5,6 @@
 
 extern signal ZF;
 
-#define uPROGRAM_LENGTH 55
 #define BA_SIZE 8
 #define CF_SIZE 15
 
