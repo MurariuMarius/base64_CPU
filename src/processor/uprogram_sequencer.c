@@ -9,10 +9,14 @@ static void activateControlSignals() ;
 static void next_uPC();
 static void decode();
 static void executeMicroprogram();
+static void resetBranchingSignals();
 
 static uint8_t uPC;
+static uint8_t SBR; // subroutine register
 
-signal endProc;
+static signal endProc;
+static signal restore_uPC;
+static signal load_uPC;
 
 static signal *externalContorlSignals[EXTERNAL_CS_COUNT] = {
     (signal *)&stackOP, 
@@ -36,7 +40,7 @@ static uint6_t *opcodeMemory;
 static signal (*loadAddress)();
 static void (**signalActions)();
 
-void loadMigroprogram(uInstruction *cm, uint10_t *icm, uint6_t *opm, signal (*la)(), void (*sa[])()) {
+void loadMicroprogram(uInstruction *cm, uint10_t *icm, uint6_t *opm, signal (*la)(), void (*sa[])()) {
     controlMemory = cm;
     instructionCodeMemory = icm;
     opcodeMemory = opm;
@@ -66,6 +70,7 @@ uint10_t getInstruction() {
 static void executeMicroprogram() {
     uPC = 0;
     while (!endProc.active) {
+        resetBranchingSignals();
         fetchNextInstruction();
         next_uPC();
     }
@@ -98,8 +103,17 @@ static void next_uPC() {
     if (loadAddress().active) {
         uPC = branchAddress;
     } else {
+        if (restore_uPC.active) {
+            uPC = SBR;
+        }
         uPC++;
     }
+
+    if (load_uPC.active) {
+        SBR = uPC;
+        printf("uPS: SBR: %d\n", SBR);
+    }
+    printf("uPS: uPC: %d\n", uPC);
 }
 
 static uint8_t getBranchAddress(uInstruction instruction) {
@@ -110,12 +124,31 @@ static uint8_t getBranchAddress(uInstruction instruction) {
     return branchAddress;
 }
 
+static void resetBranchingSignals() {
+    load_uPC = INACTIVE;
+    restore_uPC = INACTIVE;
+}
+
 void activateEndProc() {
     endProc = ACTIVE;
+}
+
+void activateLoad_uPC() {
+    load_uPC = ACTIVE;
+}
+
+void activateRestore_uPC() {
+    restore_uPC = ACTIVE;
 }
 
 static void decode() {
     if (controlField.val & 0x1000000) {
         signalActions[0]();
+    }
+    if (controlField.val & 0x800000) {
+        signalActions[1]();
+    }
+    if (controlField.val & 0x400000) {
+        signalActions[2]();
     }
 }

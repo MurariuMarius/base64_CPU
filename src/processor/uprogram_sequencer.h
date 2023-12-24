@@ -28,7 +28,9 @@ extern uint3_t conditionSelect;
 extern uint8_t branchAddress;
 extern uint25_t controlField;
 
-void loadMigroprogram(uInstruction *cm, uint10_t *icm, uint6_t *opm, signal (*la)(), void (*sa[])());
+void loadMicroprogram(uInstruction *cm, uint10_t *icm, uint6_t *opm, signal (*la)(), void (*sa[])());
 void activateEndProc();
+void activateLoad_uPC();
+void activateRestore_uPC();
 
 #endif
