@@ -11,18 +11,18 @@ extern signal ZF;
 */
 uInstruction controlMemory[uPROGRAM_LENGTH] = {
 
-//                             4321098765432109876543210
-    (uint3_t){0}, (uint25_t){0b0000000000000000000011100},  // LDR Y, 360
-    (uint3_t){7}, (uint25_t){0b0000000000000000000001000},  // branch_always
-    (uint3_t){0}, (uint25_t){0b0000000000000000000101101},  // PSH X
-    (uint3_t){0}, (uint25_t){0b0000000000000000001001100},  // MOV X, #0
-    (uint3_t){0}, (uint25_t){0b0000000000000000001001100},  // MOV Y, #0
-    (uint3_t){0}, (uint25_t){0b0000000000000000000010100},  // LDR Y, [SP+1]
-    (uint3_t){0}, (uint25_t){0b0010000000000000000000000},  // ret
-    (uint3_t){0}, (uint25_t){0b0000000000000000001001100},  // MOV Y, #0
-    (uint3_t){0}, (uint25_t){0b0100000000000000000000000},  // sbr
-    (uint3_t){7}, (uint25_t){0b0000000000000000000000010},  // jmp
-    (uint3_t){0}, (uint25_t){0b1000000000000000000000000}   // endProc
+//                             432109876543210
+    (uint3_t){0}, (uint15_t){0b000000000011100},  // LDR Y, 360
+    (uint3_t){7}, (uint15_t){0b000000000001000},  // branch_always
+    (uint3_t){0}, (uint15_t){0b000000000101101},  // PSH X
+    (uint3_t){0}, (uint15_t){0b000000001001100},  // MOV X, #0
+    (uint3_t){0}, (uint15_t){0b000000001001100},  // MOV Y, #0
+    (uint3_t){0}, (uint15_t){0b000000000010100},  // LDR Y, [SP+1]
+    (uint3_t){0}, (uint15_t){0b100000000000000},  // ret
+    (uint3_t){0}, (uint15_t){0b000000001001100},  // MOV Y, #0
+    (uint3_t){0}, (uint15_t){0b011110000000000},  // sbr
+    (uint3_t){7}, (uint15_t){0b000000000000010},  // jmp
+    (uint3_t){0}, (uint15_t){0b100010000000000}   // endProc
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
@@ -75,9 +75,24 @@ static signal loadAddress() {
 
 
 void (*signalActions[])() = {
-    &activateEndProc,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
+    &nop,
     &activateLoad_uPC,
-    &activateRestore_uPC
+    &activateRestore_uPC,
+    &activateEndProc
 };
 
 void encode() {

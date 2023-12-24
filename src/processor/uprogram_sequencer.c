@@ -27,11 +27,12 @@ static signal *externalContorlSignals[EXTERNAL_CS_COUNT] = {
     &str,
     &lse,
     NULL,
+    NULL
 };
 
 uint3_t conditionSelect;
 uint8_t branchAddress;
-uint25_t controlField;
+uint15_t controlField;
 
 static uInstruction *controlMemory;
 static uint10_t *instructionCodeMemory;
@@ -141,14 +142,8 @@ void activateRestore_uPC() {
     restore_uPC = ACTIVE;
 }
 
+void nop() {}
+
 static void decode() {
-    if (controlField.val & 0x1000000) {
-        signalActions[0]();
-    }
-    if (controlField.val & 0x800000) {
-        signalActions[1]();
-    }
-    if (controlField.val & 0x400000) {
-        signalActions[2]();
-    }
+    signalActions[controlField.val >> EXTERNAL_CS_COUNT]();
 }
