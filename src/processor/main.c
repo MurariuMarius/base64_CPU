@@ -46,12 +46,16 @@ void request(signal IO_type) {
 void read() {
     uint16_t buffer;
     
-    int wordsRead = fread(&buffer, sizeof(uint16_t), 1, in);
+    int wordsRead = fread(&buffer, sizeof(uint8_t), 2, in);
 
     // Convert to big endian ordering
     // (assuming that the machine running the program has little endinan ordering)
-    IO_data = buffer >> 8;
-    IO_data |= (0xFF & buffer) << 8;
+    if (wordsRead == 1) {
+        IO_data = (0xFF & buffer) << 8;
+    } else {
+        IO_data = buffer >> 8;
+        IO_data |= (0xFF & buffer) << 8;
+    }
 
     printf("DRVR: Read %d word(s)\n", wordsRead);
     if (wordsRead == 0) {
