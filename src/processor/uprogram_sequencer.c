@@ -7,7 +7,7 @@ static uint8_t getBranchAddress(uInstruction instruction);
 static void activateExternalControlSignals();
 static void activateControlSignals() ;
 static void next_uPC();
-static void decode();
+static void decodeInternalContolSignals();
 static void executeMicroprogram();
 static void resetBranchingSignals();
 
@@ -79,7 +79,7 @@ static void executeMicroprogram() {
 
 static void activateControlSignals() {
     activateExternalControlSignals();
-    decode();
+    decodeInternalContolSignals();
 }
 
 static void activateExternalControlSignals() {
@@ -144,6 +144,6 @@ void activateRestore_uPC() {
 
 void nop() {}
 
-static void decode() {
+static void decodeInternalContolSignals() {
     signalActions[controlField.val >> EXTERNAL_CS_COUNT]();
 }
