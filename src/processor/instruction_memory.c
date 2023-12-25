@@ -4,7 +4,7 @@
 
 #include "internals.h"
 
-uint6_t instruction;
+static uint6_t instruction;
 
 static uint8_t instructionMemory[INSTRUCTION_MEMORY_SIZE];
 
@@ -96,4 +96,11 @@ static void demux() {
         Y0 = (uint10_t){0};
         Y1 = addressRegister;
     }
+}
+
+uint6_t getOpcode() {
+    if (enc_instr.active) {
+        return getMicroinstructionOpcode();
+    }
+    return instruction;
 }

@@ -26,8 +26,8 @@ static signal *externalContorlSignals[EXTERNAL_CS_COUNT] = {
     &ldm,
     &str,
     &lse,
-    NULL,
-    NULL
+    &aluOp,
+    &enc_instr
 };
 
 uint3_t conditionSelect;
@@ -66,6 +66,10 @@ void fetchNextInstruction() {
 
 uint10_t getInstruction() {
     return instructionCodeMemory[uPC];
+}
+
+uint6_t getMicroinstructionOpcode() {
+    return opcodeMemory[uPC];
 }
 
 static void executeMicroprogram() {

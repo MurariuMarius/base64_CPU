@@ -18,6 +18,7 @@ signal immOp;
 signal IO_type;
 signal IO_Op;
 signal enc;
+signal enc_instr;
 
 
 static void resetSignals() {
@@ -39,6 +40,8 @@ static void resetSignals() {
 
 void CU_handleNextInstruction() {
     resetSignals();
+
+    uint6_t instruction = getOpcode();
     
     switch(instruction.val){
         case HLT:

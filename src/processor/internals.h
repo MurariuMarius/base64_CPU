@@ -53,9 +53,9 @@ extern signal send;
 extern signal IO_type;
 extern signal IO_Op;
 extern signal enc;
+extern signal enc_instr;
 
 /* BUSSES */
-extern uint6_t instruction;
 extern uint16_t IO_data;
 
 /*  INSTRUCTION MEMORY  */
@@ -64,6 +64,7 @@ void initializeInstructionMemory(char *binFile);
 uint16_t readWordFromInstructionMemory(uint16_t index);
 uint10_t getAddressRegisterFromRF();
 uint16_t getAddressRegisterFromPC();
+uint6_t getOpcode();
 
 /*  PROGRAM COUNTER  */
 void nextPC();
@@ -92,6 +93,7 @@ uint16_t getIndex();
 
 /*  MICROPRORGAM SEQUENCER  */
 uint10_t getInstruction();
+uint6_t getMicroinstructionOpcode();
 
 /*  ENCODER  */
 void encode();
