@@ -21,23 +21,24 @@
 #define SIG_INC_SEL_REG     0b01110
 #define SIG_RESET_LD_ROM    0b01111
 #define SIG_STR_R_OUT       0b10000
-#define SIG_LOAD_uPC        0b10001
-#define SIG_RESTORE_uPC     0b10010
-#define SIG_END_PROC        0b10011
+#define SIG_INC_SEL_BYTE    0b10001
+#define SIG_LOAD_uPC        0b10010
+#define SIG_RESTORE_uPC     0b10011
+#define SIG_END_PROC        0b10100
 
 /*  LABELS  */
 #define BEGIN 6
 #define S0 15
 #define S1 17
 #define PUSH 23
-#define INC_STATE 31
-#define END 35
-#define EXIT 38
-#define PROC_OUTBUS 40
-#define STORE 43
-#define INC_SEL_REG 46
+#define INC_STATE 33
+#define END 37
+#define EXIT 40
+#define PROC_OUTBUS 42
+#define STORE 46
+#define INC_SEL_REG 49
 
-#define uPROGRAM_LENGTH 57
+#define uPROGRAM_LENGTH 60
 
 #define generateCF(externalControlSignals, internalControlSignals) \
 (uint15_t){(0x3FF & (externalControlSignals)) | ((internalControlSignals) << EXTERNAL_CS_COUNT)}
@@ -54,7 +55,7 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
 
 // PREPARE: 0
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),                         // LDR Y, 360
-    (uint3_t){0}, generateCF(SIG_STACK_OP_PSH | SIG_ENC | SIG_IMM_OP | SIG_STR, SIG_NOP),      // PSH X    
+    (uint3_t){0}, generateCF(SIG_STACK_OP_PSH | SIG_ENC | SIG_IMM_OP | SIG_STR, SIG_NOP),      // PSH Y    
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_NOP),                         // MOV X, #0
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_RESET),                       // MOV Y, #0, reset
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_BUFF_3),                                       // reset_Buff_3
@@ -89,29 +90,32 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
     (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
 // NEXT: 28
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // INC X
-    (uint3_t){0}, generateCF(SIG_ENC | SIG_LDM, SIG_NOP),                                      // LDR Y, [SP+1]
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_STR, SIG_NOP),                                      // STR Y, [SP-1]
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_LDM, SIG_NOP),                                      // LDR Y, [SP]
     (uint3_t){0}, generateCF(SIG_ENC | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),                   // CMP X, Y
-// INC_STATE: 31
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_LDM, SIG_NOP),                                      // LDR Y, [SP-1]
+// INC_STATE: 33
     (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_STATE),                                          // state++  
     (uint3_t){3}, generateBA(INC_STATE),                                                       // if state = 3 go to INC_STATE 
     (uint3_t){4}, generateBA(END),                                                             // if ZF = 1 go to END
     (uint3_t){7}, generateBA(BEGIN),                                                           // go to BEGIN
-// END: 35
+// END: 37
     (uint3_t){1}, generateBA(EXIT),                                                            // if STATE = 0 go to EXIT
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
-    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus    
-// EXIT: 38
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+// EXIT: 40
     (uint3_t){0}, generateCF(SIG_STACK_OP_POP | SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),      // POP Y
     (uint3_t){0}, generateCF(SIG_NOP, SIG_END_PROC),                                           // endProc
-// PROC OUTBUS: 40
+// PROC OUTBUS: 42
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LD_ROM),                                             // ld_rom = 1
-    (uint3_t){5}, generateBA(STORE),                                                           // if selReg[0] or ZF go to STORE
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_SEL_BYTE),                                       // selByte++
+    (uint3_t){5}, generateBA(STORE),                                                           // if ~selByte or ZF go to STORE
     (uint3_t){7}, generateBA(INC_SEL_REG),                                                     // go to INC
-// STORE: 43
+// STORE: 46
     (uint3_t){0}, generateCF(SIG_ENC | SIG_STR, SIG_STR_R_OUT),                                // STR R_OUT, [Y]
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_R_OUT)    ,                                    // R_OUT = 0 
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // INC Y
-// INC_SEL_REG: 46
+// INC_SEL_REG: 49
     (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_SEL_REG),                                        // selReg++
     (uint3_t){6}, generateBA(INC_SEL_REG),                                                     // if selReg = 3 go to INC_SEL_REG
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_LD_ROM),                                       // ld_rom = 0
@@ -119,8 +123,8 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
-    {0b1101101000}, // LDR Y, 360
-    {0b0000000000}, // PSH X
+    {0b1000010000}, // LDR Y, 360
+    {0b1000000000}, // PSH Y
     {0b0000000000}, // MOV X, #0
     {0b1000000000}, // MOV Y, #0
     {0}, // reset
@@ -141,8 +145,33 @@ static uint6_t buff_2;
 static uint6_t buff_3;
 
 static uint2_t selReg;
+static signal selByte;
 static uint2_t state;
 static signal ld_rom;
+
+static uint8_t encodingTable[] = {
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+    'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+    'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+    'w', 'x', 'y', 'z', '0', '1', '2', '3',
+    '4', '5', '6', '7', '8', '9', '+', '/'
+};
+
+static uint6_t muxBuffers() {
+    switch(selReg.val) {
+        case 0b00:
+            return buff_1;
+        case 0b01:
+            return buff_2;
+        case 0b10:
+            return buff_3;
+    }
+    printf("ENC: *** MUX ERROR *** ");
+    return (uint6_t){-1};
+}
 
 static signal loadAddress() {
     switch(conditionSelect.val) {
@@ -157,7 +186,8 @@ static signal loadAddress() {
         case 0b100:
             return ZF;
         case 0b101:
-            return ((selReg.val & 1) | ZF.active) ? ACTIVE : INACTIVE;
+            printf("ROUT COND %d %d %d\n", !selByte.active, ZF.active, (~(selByte.active) | ZF.active));
+            return (!selByte.active || ZF.active) ? ACTIVE : INACTIVE;
         case 0b110:
             return selReg.val == 3 ? ACTIVE : INACTIVE;
         case 0b111:
@@ -171,6 +201,7 @@ void reset() {
     buff_1.val = 0;
     buff_2.val = 0;
     state.val = 0;
+    selByte = INACTIVE;
 }
 
 void reset_Buff_3() {
@@ -221,6 +252,13 @@ void incState() {
  
 void activate_ld_rom() {
     ld_rom = ACTIVE;
+    uint8_t encodedChar = encodingTable[muxBuffers().val];
+    if (selByte.active) {
+        R_OUT = ((uint16_t)encodedChar) | (R_OUT & 0xFF00);
+    } else {
+        R_OUT = (((uint16_t)encodedChar) << 8) | (R_OUT & 0x00FF);
+    }
+    printf("ROUT %d %x %04x\n", selByte.active, encodedChar, R_OUT);
 }
 
 void incSelReg() {
@@ -232,7 +270,12 @@ void reset_ld_rom() {
 }
 
 void str_R_OUT() {
-    printf("ROUT %d\n", R_OUT);
+    printf("ROUT STORE %x\n", R_OUT);
+    store(R_OUT, getIndex());
+}
+
+void incSelByte() {
+    selByte.active++;
 }
 
 void (*signalActions[])() = {
@@ -253,6 +296,7 @@ void (*signalActions[])() = {
     &incSelReg,
     &reset_ld_rom,
     &str_R_OUT,
+    &incSelByte,
     &activateLoad_uPC,
     &activateRestore_uPC,
     &activateEndProc
@@ -261,14 +305,19 @@ void (*signalActions[])() = {
 void encode() {
     
     instructionCodeMemory[28] = (uint10_t){0};
-    instructionCodeMemory[29] = (uint10_t){0b1110000000};
-    instructionCodeMemory[30] = (uint10_t){0b0010000000};
-    instructionCodeMemory[38] = (uint10_t){0b1000000000};
-    instructionCodeMemory[43] = (uint10_t){0b1010000000};
-    instructionCodeMemory[45] = (uint10_t){0b1000000000};
+    
+    instructionCodeMemory[29] = (uint10_t){0b1111111111};
+    instructionCodeMemory[30] = (uint10_t){0b1110000000};
+    instructionCodeMemory[31] = (uint10_t){0b0010000000};
+    instructionCodeMemory[32] = (uint10_t){0b1111111111};
+
+    instructionCodeMemory[40] = (uint10_t){0b1000000000};
+    instructionCodeMemory[46] = (uint10_t){0b1010000000};
+    instructionCodeMemory[48] = (uint10_t){0b1000000000};
 
     opcodeMemory[28] = (uint6_t){INCI};
-    opcodeMemory[30] = (uint6_t){CMP};
+    opcodeMemory[31] = (uint6_t){CMP};
+    opcodeMemory[48] = (uint6_t){INCI};
 
     loadMicroprogram(controlMemory, instructionCodeMemory, opcodeMemory, &loadAddress, signalActions);
 }
