@@ -23,6 +23,19 @@ typedef struct {
     uint15_t BA_CF;
 } uInstruction;
 
+
+#define SIG_NOP 0
+#define SIG_STACK_OP_PSH 0b01 
+#define SIG_STACK_OP_POP 0b10 
+#define SIG_ENC 0x4
+#define SIG_IMM_OP 0x8
+#define SIG_LDM 0x10
+#define SIG_STR 0x20
+#define SIG_LSE 0x40
+#define SIG_ALU_OP 0x80
+#define SIG_ENC_INSTR 0x100
+
+
 extern uint3_t conditionSelect;
 extern uint8_t branchAddress;
 extern uint15_t controlField;
