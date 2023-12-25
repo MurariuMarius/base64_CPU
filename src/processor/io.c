@@ -27,6 +27,7 @@ static void output() {
 
 void io() {
     requestedWords = sign_extend_9_to_16_bits();
+    requestedWords %= DATA_MEMORY_SIZE;
     wordsProcessed = 0;
     request(IO_type);
     if (IO_type.active) {
