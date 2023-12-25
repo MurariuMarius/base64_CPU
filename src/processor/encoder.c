@@ -8,7 +8,7 @@
 #define SIG_RESET           0b00001
 #define SIG_RESET_BUFF_3    0b00010
 #define SIG_RESET_R_OUT     0b00011
-#define SIG_LDR             0b00100
+#define SIG_LD_R_IN         0b00100
 #define SIG_LD30            0b00101
 #define SIG_LSH4            0b00110
 #define SIG_LD52            0b00111
@@ -20,9 +20,10 @@
 #define SIG_LD_ROM          0b01101
 #define SIG_INC_SEL_REG     0b01110
 #define SIG_RESET_LD_ROM    0b01111
-#define SIG_LOAD_uPC        0b10000
-#define SIG_RESTORE_uPC     0b10001
-#define SIG_END_PROC        0b10010
+#define SIG_STR_R_OUT       0b10000
+#define SIG_LOAD_uPC        0b10001
+#define SIG_RESTORE_uPC     0b10010
+#define SIG_END_PROC        0b10011
 
 /*  LABELS  */
 #define BEGIN 6
@@ -33,6 +34,8 @@
 #define END 35
 #define EXIT 38
 #define PROC_OUTBUS 40
+#define STORE 43
+#define INC_SEL_REG 46
 
 #define uPROGRAM_LENGTH 57
 
@@ -53,11 +56,11 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),                         // LDR Y, 360
     (uint3_t){0}, generateCF(SIG_STACK_OP_PSH | SIG_ENC | SIG_IMM_OP | SIG_STR, SIG_NOP),      // PSH X    
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_NOP),                         // MOV X, #0
-    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_RESET),                       // MOV X, #0, reset
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_RESET),                       // MOV Y, #0, reset
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_BUFF_3),                                       // reset_Buff_3
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_R_OUT),                                        // reset_R_OUT
 // BEGIN: 6                    
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_LDR),                                                // LDR R_IN, [X]
+    (uint3_t){0}, generateCF(SIG_ENC, SIG_LD_R_IN),                                            // LDR R_IN, [X]
 // SCAN: 7
     (uint3_t){1}, generateBA(S0),                                                              // if state = 0 go to S0
     (uint3_t){2}, generateBA(S1),                                                              // if state = 1 go to S1
@@ -100,6 +103,19 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
 // EXIT: 38
     (uint3_t){0}, generateCF(SIG_STACK_OP_POP | SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),      // POP Y
     (uint3_t){0}, generateCF(SIG_NOP, SIG_END_PROC),                                           // endProc
+// PROC OUTBUS: 40
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD_ROM),                                             // ld_rom = 1
+    (uint3_t){5}, generateBA(STORE),                                                           // if selReg[0] or ZF go to STORE
+    (uint3_t){7}, generateBA(INC_SEL_REG),                                                     // go to INC
+// STORE: 43
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_STR, SIG_STR_R_OUT),                                // STR R_OUT, [Y]
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_R_OUT)    ,                                    // R_OUT = 0 
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // INC Y
+// INC_SEL_REG: 46
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_SEL_REG),                                        // selReg++
+    (uint3_t){6}, generateBA(INC_SEL_REG),                                                     // if selReg = 3 go to INC_SEL_REG
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_LD_ROM),                                       // ld_rom = 0
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_RESTORE_uPC)                                         // restore_uPC
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
@@ -126,6 +142,7 @@ static uint6_t buff_3;
 
 static uint2_t selReg;
 static uint2_t state;
+static signal ld_rom;
 
 static signal loadAddress() {
     switch(conditionSelect.val) {
@@ -142,7 +159,7 @@ static signal loadAddress() {
         case 0b101:
             return ((selReg.val & 1) | ZF.active) ? ACTIVE : INACTIVE;
         case 0b110:
-            return selReg.val == 2 ? ACTIVE : INACTIVE;
+            return selReg.val == 3 ? ACTIVE : INACTIVE;
         case 0b111:
             return ACTIVE;
     }
@@ -202,6 +219,21 @@ void incState() {
     printf("*** ENC: STATE = %d ***\n", state.val);
 }
  
+void activate_ld_rom() {
+    ld_rom = ACTIVE;
+}
+
+void incSelReg() {
+    selReg.val++;
+}
+
+void reset_ld_rom() {
+    ld_rom = INACTIVE;
+}
+
+void str_R_OUT() {
+    printf("ROUT %d\n", R_OUT);
+}
 
 void (*signalActions[])() = {
     &nop,
@@ -217,21 +249,23 @@ void (*signalActions[])() = {
     &ld54,
     &ldBuff,
     &incState,
-    &nop,
-    &nop,
-    &nop,
+    &activate_ld_rom,
+    &incSelReg,
+    &reset_ld_rom,
+    &str_R_OUT,
     &activateLoad_uPC,
     &activateRestore_uPC,
     &activateEndProc
 };
 
 void encode() {
-    controlMemory[PROC_OUTBUS] =  (uInstruction) {  (uint3_t){0}, generateCF(SIG_NOP, SIG_RESTORE_uPC)};  // restore_uPC
     
     instructionCodeMemory[28] = (uint10_t){0};
     instructionCodeMemory[29] = (uint10_t){0b1110000000};
     instructionCodeMemory[30] = (uint10_t){0b0010000000};
     instructionCodeMemory[38] = (uint10_t){0b1000000000};
+    instructionCodeMemory[43] = (uint10_t){0b1010000000};
+    instructionCodeMemory[45] = (uint10_t){0b1000000000};
 
     opcodeMemory[28] = (uint6_t){INCI};
     opcodeMemory[30] = (uint6_t){CMP};
