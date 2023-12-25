@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "opcodes.h"
 #include "uprogram_sequencer.h"
 
 /*   INTERNAL CONTROL SIGNALS   */
@@ -27,6 +28,10 @@
 #define BEGIN 6
 #define S0 15
 #define S1 17
+#define PUSH 23
+#define INC_STATE 31
+#define END 35
+#define EXIT 38
 #define PROC_OUTBUS 40
 
 #define uPROGRAM_LENGTH 57
@@ -60,24 +65,46 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LSH4),                                               // lsh4
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
     (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
-    (uint3_t){7}, (uint15_t){0b000000000000000},                                               // go to PSH - TODO
-// S0: 14                      432109876543210
+    (uint3_t){7}, generateBA(PUSH),                                                            // go to PUSH
+// S0: 14                      
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_BUFF_3),                                       // reset_Buff_3
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LD52),                                               // ld52
-    (uint3_t){7}, (uint15_t){0b000000000000000},                                               // go to PSH - TODO
-// S1: 17                      432109876543210
+    (uint3_t){7}, generateBA(PUSH),                                                            // go to PUSH
+// S1: 17                      
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LD10),                                               // ld10
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LSH2),                                               // lsh2
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
     (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_BUFF_3),                                       // reset_Buff_3
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD54),                                               // ld54
+// PSH: 23
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD_BUFF),                                            // loadBuffers
+// OUTPUT: 24
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+// NEXT: 28
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // INC X
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_LDM, SIG_NOP),                                      // LDR Y, [SP+1]
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),                   // CMP X, Y
+// INC_STATE: 31
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_STATE),                                          // state++  
+    (uint3_t){3}, generateBA(INC_STATE),                                                       // if state = 3 go to INC_STATE 
+    (uint3_t){4}, generateBA(END),                                                             // if ZF = 1 go to END
+    (uint3_t){7}, generateBA(BEGIN),                                                           // go to BEGIN
+// END: 35
+    (uint3_t){1}, generateBA(EXIT),                                                            // if STATE = 0 go to EXIT
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus    
+// EXIT: 38
+    (uint3_t){0}, generateCF(SIG_STACK_OP_POP | SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),      // POP Y
     (uint3_t){0}, generateCF(SIG_NOP, SIG_END_PROC),                                           // endProc
-
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
     {0b1101101000}, // LDR Y, 360
-    {0b1000000000}, // PSH X
+    {0b0000000000}, // PSH X
     {0b0000000000}, // MOV X, #0
     {0b1000000000}, // MOV Y, #0
     {0}, // reset
@@ -109,7 +136,7 @@ static signal loadAddress() {
         case 0b010:
             return (signal){state.val == 1};
         case 0b011:
-            return (signal){state.val == 2};
+            return (signal){state.val == 3};
         case 0b100:
             return ZF;
         case 0b101:
@@ -139,10 +166,6 @@ void reset_R_OUT() {
 
 void load_R_IN() {
     R_IN = load(getIndex());
-
-    R_IN = 0x5111;
-    state.val = 1;
-    buff_3.val = 0x2f;
 }
 
 void ld30() {
@@ -158,14 +181,27 @@ void ld52() {
 }
 
 void ld10() {
-    printf("%x\n", buff_3.val);
     buff_3.val = (R_IN >> 14) | (buff_3.val & 0x3C);
-    printf("%x\n", buff_3.val);
 }
 
 void lsh2() {
     R_IN <<= 2;
 }
+
+void ld54() {
+    buff_3.val = ((R_IN & 0xC) << 2) | (buff_3.val & 0xF);
+}
+
+void ldBuff() {
+    buff_1.val = R_IN >> 10;
+    buff_2.val = (R_IN & 0x1FF) >> 4;
+}
+
+void incState() {
+    state.val++;
+    printf("*** ENC: STATE = %d ***\n", state.val);
+}
+ 
 
 void (*signalActions[])() = {
     &nop,
@@ -178,9 +214,9 @@ void (*signalActions[])() = {
     &ld52,
     &ld10,
     &lsh2,
-    &nop,
-    &nop,
-    &nop,
+    &ld54,
+    &ldBuff,
+    &incState,
     &nop,
     &nop,
     &nop,
@@ -191,6 +227,14 @@ void (*signalActions[])() = {
 
 void encode() {
     controlMemory[PROC_OUTBUS] =  (uInstruction) {  (uint3_t){0}, generateCF(SIG_NOP, SIG_RESTORE_uPC)};  // restore_uPC
+    
+    instructionCodeMemory[28] = (uint10_t){0};
+    instructionCodeMemory[29] = (uint10_t){0b1110000000};
+    instructionCodeMemory[30] = (uint10_t){0b0010000000};
+    instructionCodeMemory[38] = (uint10_t){0b1000000000};
+
+    opcodeMemory[28] = (uint6_t){INCI};
+    opcodeMemory[30] = (uint6_t){CMP};
 
     loadMicroprogram(controlMemory, instructionCodeMemory, opcodeMemory, &loadAddress, signalActions);
 }
