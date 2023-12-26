@@ -36,11 +36,11 @@ int main(int argc, char **argv) {
     fclose(in);
     fclose(out);
 }
-uint8_t paddingNecessary;
+uint8_t paddingOffset;
 
 void request(signal IO_type) {
     send = ACTIVE;
-    paddingNecessary = 0;
+    paddingOffset = 0;
 }
 
 signal incompleteRead;
@@ -88,31 +88,39 @@ void writeBase64() {
     printf("DRVR: Received %x\n", buffer);
     if (buffer == 0 || (buffer >> 8) == 0) {
         if (buffer >> 8 == 0 && buffer & 0xFF) {
-            paddingNecessary++;
-            paddingNecessary %= 4;
+            paddingOffset++;
+            paddingOffset %= 4;
         }
 
         if (incompleteRead.active) {
-            fseek(out, -2, SEEK_CUR);
-            fread(&buffer, sizeof(uint8_t), 2, out);
+            if (buffer == 0 || (buffer >> 8 != 0 && buffer & 0xFF)) {
+                fseek(out, -2, SEEK_CUR);
+                fread(&buffer, sizeof(uint8_t), 2, out);
+                
+                printf("DRVR: Retrieved %x\n", buffer);
+                
+                buffer &= 0xFF;
+                buffer |= 0x3D00;
+                fseek(out, -2, SEEK_CUR);
+            } else {
 
-            printf("DRVR: Retrieved %x\n", buffer);
 
-            buffer &= 0xFF;
-            buffer |= 0x3D00;
+                buffer = 0x3D3D;
+            }
 
-            fseek(out, -2, SEEK_CUR);
             fwrite(&buffer, sizeof(uint8_t), 2, out);
             printf("DRVR: Writing 1 byte %x\n", buffer);
+            send = INACTIVE;
+            return;
         }
 
 
-        printf("DRVR: Padding %d\n", paddingNecessary);
+        printf("DRVR: Padding %d\n", paddingOffset);
 
-        if (paddingNecessary == 2){
+        if (paddingOffset == 2){
             buffer = 0x3d3d;
             fwrite(&buffer, sizeof(uint8_t), 2, out);
-        } else if (paddingNecessary == 3) {
+        } else if (paddingOffset == 3) {
             buffer = 0x3d00 | (buffer & 0xFF);
             fwrite(&buffer, sizeof(uint8_t), 2, out);
         }
@@ -121,10 +129,10 @@ void writeBase64() {
         return;
     }
 
-        printf("DRVR: Padding %d\n", paddingNecessary);
+        printf("DRVR: Padding %d\n", paddingOffset);
 
-        paddingNecessary += 2;
-    paddingNecessary %= 4;
+        paddingOffset += 2;
+    paddingOffset %= 4;
 
     fwrite(&buffer, sizeof(uint16_t), 1, out);
     printf("DRVR: Writing 2 bytes %x\n", buffer);
