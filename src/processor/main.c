@@ -87,15 +87,22 @@ void writeBase64() {
 
     printf("DRVR: Received %x\n", buffer);
     if (buffer == 0 || (buffer >> 8) == 0) {
+        if (buffer >> 8 == 0 && buffer & 0xFF) {
+            paddingNecessary++;
+            paddingNecessary %= 4;
+        }
+
         if (incompleteRead.active) {
             fseek(out, -2, SEEK_CUR);
             fread(&buffer, sizeof(uint8_t), 2, out);
 
             printf("DRVR: Retrieved %x\n", buffer);
 
-            buffer = 0x003d;
-            fseek(out, -1, SEEK_CUR);
-            fwrite(&buffer, sizeof(uint8_t), 1, out);
+            buffer &= 0xFF;
+            buffer |= 0x3D00;
+
+            fseek(out, -2, SEEK_CUR);
+            fwrite(&buffer, sizeof(uint8_t), 2, out);
             printf("DRVR: Writing 1 byte %x\n", buffer);
         }
 
@@ -104,6 +111,9 @@ void writeBase64() {
 
         if (paddingNecessary == 2){
             buffer = 0x3d3d;
+            fwrite(&buffer, sizeof(uint8_t), 2, out);
+        } else if (paddingNecessary == 3) {
+            buffer = 0x3d00 | (buffer & 0xFF);
             fwrite(&buffer, sizeof(uint8_t), 2, out);
         }
 
