@@ -55,7 +55,7 @@ void fetchNextInstruction() {
     uInstruction instruction = controlMemory[uPC];
     printf("\tMicroinstruction: %d %x %x\n", uPC, instruction.conditionSelect.val, instruction.BA_CF.val);
     conditionSelect = instruction.conditionSelect;
-    printf("ENC: C/S: %d\n", conditionSelect.val);
+    printf("uPS: CS: %d\n", conditionSelect.val);
     if (conditionSelect.val != 0) {
         branchAddress = getBranchAddress(instruction);
     } else {
@@ -124,7 +124,7 @@ static void next_uPC() {
 static uint8_t getBranchAddress(uInstruction instruction) {
     uint8_t mask = (1 << BA_SIZE) - 1;
     uint8_t branchAddress = (uint8_t)(instruction.BA_CF.val & mask);
-    printf("ENC: BA: %d\n", branchAddress);
+    printf("uPS: BA: %d\n", branchAddress);
 
     return branchAddress;
 }

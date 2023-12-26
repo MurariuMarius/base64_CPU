@@ -25,8 +25,8 @@ typedef struct {
 
 
 #define SIG_NOP 0
-#define SIG_STACK_OP_PSH 0b01 
-#define SIG_STACK_OP_POP 0b10 
+#define SIG_STACK_OP_PSH 0x1 
+#define SIG_STACK_OP_POP 0x2 
 #define SIG_ENC 0x4
 #define SIG_IMM_OP 0x8
 #define SIG_LDM 0x10
