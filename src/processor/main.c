@@ -77,6 +77,8 @@ void write() {
     fwrite(&buffer, sizeof(uint16_t), 1, out);
 }
 
+extern signal receivedZero;
+
 void writeBase64() {
     // Convert to big endian ordering
     // (assuming that the machine running the program has little endinan ordering)
@@ -93,12 +95,19 @@ void writeBase64() {
         }
 
         if (incompleteRead.active) {
-            if (buffer == 0 || (buffer >> 8 != 0 && buffer & 0xFF)) {
+            if (buffer == 0) {
                 fseek(out, -2, SEEK_CUR);
                 fread(&buffer, sizeof(uint8_t), 2, out);
                 
                 printf("DRVR: Retrieved %x\n", buffer);
-                
+
+                if ((buffer >> 8 != 0 && buffer & 0xFF)) {
+                    if (!receivedZero.active || buffer >> 8 != 0x41) {
+                        send = INACTIVE;
+                        return;
+                    }
+                }
+
                 buffer &= 0xFF;
                 buffer |= 0x3D00;
                 fseek(out, -2, SEEK_CUR);
@@ -129,9 +138,9 @@ void writeBase64() {
         return;
     }
 
-        printf("DRVR: Padding %d\n", paddingOffset);
+    printf("DRVR: Padding %d\n", paddingOffset);
 
-        paddingOffset += 2;
+    paddingOffset += 2;
     paddingOffset %= 4;
 
     fwrite(&buffer, sizeof(uint16_t), 1, out);

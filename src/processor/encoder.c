@@ -179,6 +179,8 @@ static uint6_t muxBuffers() {
     return (uint6_t){-1};
 }
 
+extern signal incompleteRead;
+
 static signal loadAddress() {
     switch(conditionSelect.val) {
         case 0b000:
@@ -192,8 +194,8 @@ static signal loadAddress() {
         case 0b100:
             return ZF;
         case 0b101:
-            printf("ENC: ROUT COND %d %d %d\n", !selByte.active, ZF.active, (~(selByte.active) | ZF.active));
-            return (!selByte.active || ZF.active) ? ACTIVE : INACTIVE;
+            printf("ENC: ROUT COND %d %d %d %d\n", !selByte.active, ZF.active, incompleteRead.active, (!selByte.active && !ZF.active) || (ZF.active && !incompleteRead.active));
+            return ((!selByte.active && !ZF.active) || (ZF.active && !incompleteRead.active)) ? ACTIVE : INACTIVE;
         case 0b110:
             return selReg.val == 3 ? ACTIVE : INACTIVE;
         case 0b111:
@@ -267,11 +269,17 @@ void incState() {
     state.val++;
     printf("*** ENC: STATE = %d ***\n", state.val);
 }
- 
+
+signal receivedZero;
+
 void activate_ld_rom() {
     ld_rom = ACTIVE;
+    receivedZero = INACTIVE;
     uint8_t encodedChar = encodingTable[muxBuffers().val];
     if (selByte.active) {
+        if ((muxBuffers().val == buff_2.val) && (buff_2.val == 0)) {
+            receivedZero = ACTIVE;
+        }
         R_OUT = ((uint16_t)encodedChar) | (R_OUT & 0xFF00);
     } else {
         R_OUT = (((uint16_t)encodedChar) << 8) | (R_OUT & 0x00FF);
