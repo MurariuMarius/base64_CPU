@@ -28,7 +28,7 @@
 
 /*  LABELS  */
 #define BEGIN 6
-#define S0 15
+#define S0 14
 #define S1 17
 #define PUSH 23
 #define INC_STATE 33
@@ -54,7 +54,7 @@ extern signal ZF;
 uInstruction controlMemory[uPROGRAM_LENGTH] = {
 
 // PREPARE: 0
-    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),                         // LDR Y, 360
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),                         // LDR Y, 0
     (uint3_t){0}, generateCF(SIG_STACK_OP_PSH | SIG_ENC | SIG_IMM_OP | SIG_STR, SIG_NOP),      // PSH Y    
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_NOP),                         // MOV X, #0
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_RESET),                       // MOV Y, #0, reset
@@ -123,10 +123,10 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
-    {0b1000010000}, // LDR Y, 360
+    {0b1000000000}, // LDR Y, 0
     {0b1000000000}, // PSH Y
-    {0b0000000000}, // MOV X, #0
-    {0b1000000000}, // MOV Y, #0
+    {0b0001010100}, // MOV X, #84
+    {0b1001110000}, // MOV Y, #112
     {0}, // reset
     {0b0000000000}, // LDR R_IN, [X]
     {0}, // if state = 0
@@ -163,10 +163,13 @@ static uint8_t encodingTable[] = {
 static uint6_t muxBuffers() {
     switch(selReg.val) {
         case 0b00:
+            printf("ENC: ROUT BUFF1\n");
             return buff_1;
         case 0b01:
+            printf("ENC: ROUT BUFF2\n");
             return buff_2;
         case 0b10:
+            printf("ENC: ROUT BUFF3\n");
             return buff_3;
     }
     printf("ENC: *** MUX ERROR *** ");
@@ -186,7 +189,7 @@ static signal loadAddress() {
         case 0b100:
             return ZF;
         case 0b101:
-            printf("ROUT COND %d %d %d\n", !selByte.active, ZF.active, (~(selByte.active) | ZF.active));
+            printf("ENC: ROUT COND %d %d %d\n", !selByte.active, ZF.active, (~(selByte.active) | ZF.active));
             return (!selByte.active || ZF.active) ? ACTIVE : INACTIVE;
         case 0b110:
             return selReg.val == 3 ? ACTIVE : INACTIVE;
@@ -197,6 +200,7 @@ static signal loadAddress() {
 }
 
 void reset() {
+    printf("ENC: Reset selReg, buff1/2, state, selByte\n");
     selReg.val = 0;
     buff_1.val = 0;
     buff_2.val = 0;
@@ -205,44 +209,55 @@ void reset() {
 }
 
 void reset_Buff_3() {
+    printf("ENC: Reset buff3\n");
     buff_3.val = 0;
 }
 
 void reset_R_OUT() {
+    printf("ENC: Reset R_OUT\n");
     R_OUT = 0;
 }
 
 void load_R_IN() {
     R_IN = load(getIndex());
+    printf("ENC: LOAD: R_IN %x\n", R_IN);
 }
 
 void ld30() {
     buff_3.val = (R_IN >> 12) | (buff_3.val & 0x30);
+    printf("ENC: BUFF_3 ld30: %x\n", buff_3.val);
 }
 
 void lsh4() {
     R_IN <<= 4;
+    printf("ENC: R_IN lsh4 %x\n", R_IN);
 }
 
 void ld52() {
     buff_3.val = ((R_IN & 0x000F) << 2) | (buff_3.val & 0x3);
+    printf("ENC: BUFF_3 ld52: %x\n", buff_3.val);
 }
 
 void ld10() {
     buff_3.val = (R_IN >> 14) | (buff_3.val & 0x3C);
+    printf("ENC: BUFF_3 ld10: %x\n", buff_3.val);
 }
 
 void lsh2() {
     R_IN <<= 2;
+    printf("ENC: R_IN lsh2 %x\n", R_IN);
 }
 
 void ld54() {
     buff_3.val = ((R_IN & 0xC) << 2) | (buff_3.val & 0xF);
+    printf("ENC: BUFF_3 ld54: %x\n", buff_3.val);
 }
 
 void ldBuff() {
     buff_1.val = R_IN >> 10;
-    buff_2.val = (R_IN & 0x1FF) >> 4;
+    buff_2.val = (R_IN & 0x3F0) >> 4;
+    printf("ENC: BUFF_1: %x\n", buff_1.val);
+    printf("ENC: BUFF_2: %x\n", buff_2.val);
 }
 
 void incState() {
@@ -258,7 +273,7 @@ void activate_ld_rom() {
     } else {
         R_OUT = (((uint16_t)encodedChar) << 8) | (R_OUT & 0x00FF);
     }
-    printf("ROUT %d %x %04x\n", selByte.active, encodedChar, R_OUT);
+    printf("ENC: ROUT %d %x %04x\n", selByte.active, encodedChar, R_OUT);
 }
 
 void incSelReg() {
@@ -270,7 +285,7 @@ void reset_ld_rom() {
 }
 
 void str_R_OUT() {
-    printf("ROUT STORE %x\n", R_OUT);
+    printf("ENC: ROUT STORE %x\n", R_OUT);
     store(R_OUT, getIndex());
 }
 
@@ -303,6 +318,7 @@ void (*signalActions[])() = {
 };
 
 void encode() {
+    // instructionCodeMemory[1] = (uint10_t){0b1000000000};
     
     instructionCodeMemory[28] = (uint10_t){0};
     
@@ -315,9 +331,11 @@ void encode() {
     instructionCodeMemory[46] = (uint10_t){0b1010000000};
     instructionCodeMemory[48] = (uint10_t){0b1000000000};
 
-    opcodeMemory[28] = (uint6_t){INCI};
+    // opcodeMemory[1] = (uint6_t){DECI};
+
+    opcodeMemory[28] = (uint6_t){DECI};
     opcodeMemory[31] = (uint6_t){CMP};
-    opcodeMemory[48] = (uint6_t){INCI};
+    opcodeMemory[48] = (uint6_t){DECI};
 
     loadMicroprogram(controlMemory, instructionCodeMemory, opcodeMemory, &loadAddress, signalActions);
 }
