@@ -8,18 +8,19 @@ static uint16_t requestedWords;
 static uint16_t wordsProcessed;
 
 static void input() {
-    while (wordsProcessed < requestedWords) {
+    while (requestedWords > 0) {
         read();
         if (!send.active) break;
+        wordsProcessed++;
         printf("IO: Read %04x\n", IO_data);
-        store(IO_data, wordsProcessed++);
+        store(IO_data, requestedWords--);
     }
-    store(wordsProcessed, requestedWords);
+    store(wordsProcessed, 0);
 }
 
 static void output() {
-    while (wordsProcessed < requestedWords) {
-        IO_data = load(wordsProcessed++);
+    while (requestedWords > 0) {
+        IO_data = load(requestedWords--);
         printf("IO: Wrote %04x\n", IO_data);
         write();
     }

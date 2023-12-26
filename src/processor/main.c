@@ -57,7 +57,7 @@ void read() {
         IO_data |= (0xFF & buffer) << 8;
     }
 
-    printf("DRVR: Read %d word(s)\n", wordsRead);
+    printf("DRVR: Read %d byte(s)\n", wordsRead);
     if (wordsRead == 0) {
         send = INACTIVE;
     }
