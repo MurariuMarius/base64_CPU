@@ -19,10 +19,14 @@ static void input() {
 }
 
 static void output() {
-    while (requestedWords > 0) {
+    send = ACTIVE;
+    while (requestedWords > 0 && send.active) {
         IO_data = load(requestedWords--);
         printf("IO: Wrote %04x\n", IO_data);
-        write();
+        if (requestedWords == 1) {
+            send = INACTIVE;
+        }
+        writeBase64();
     }
 }
 

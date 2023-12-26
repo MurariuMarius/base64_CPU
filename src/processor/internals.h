@@ -105,6 +105,7 @@ void io();
 void read();
 void request(signal type);
 void write();
+void writeBase64();
 
 // void initializePC();
 // void testExtendUnit(uint10_t in);
