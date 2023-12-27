@@ -36,10 +36,11 @@
 #define NEXT 35
 #define INC_STATE 40
 #define END 44
-#define EXIT 47
+#define CLEANUP 47
 #define PROC_OUTBUS 52
 #define STORE 56
 #define INC_SEL_REG 59
+#define EXIT 63
 
 #define uPROGRAM_LENGTH 70
 
@@ -111,15 +112,15 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
     (uint3_t){4}, generateBA(END),                                                             // if ZF = 1 go to END
     (uint3_t){7}, generateBA(BEGIN),                                                           // go to BEGIN
 // END: 44
-    (uint3_t){1}, generateBA(EXIT),                                                            // if STATE = 0 go to EXIT
+    (uint3_t){1}, generateBA(CLEANUP),                                                            // if STATE = 0 go to CLEANUP
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
     (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
-// EXIT: 47
+// CLEANUP: 47
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_NOP),                         // MOV X, #120
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // LSL X, #2
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IO_OP | SIG_ENC_INSTR, SIG_NOP),                    // OUT X, 1
     (uint3_t){0}, generateCF(SIG_STACK_OP_POP | SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),      // POP Y
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_END_PROC),                                           // endProc
+    (uint3_t){7}, generateBA(PREPARE),                                                         // endProc
 // PROC OUTBUS: 52
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LD_ROM),                                             // ld_rom = 1
     (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_SEL_BYTE),                                       // selByte++
@@ -133,7 +134,9 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
     (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_SEL_REG),                                        // selReg++
     (uint3_t){6}, generateBA(INC_SEL_REG),                                                     // if selReg = 3 go to INC_SEL_REG
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_LD_ROM),                                       // ld_rom = 0
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_RESTORE_uPC)                                         // restore_uPC
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_RESTORE_uPC),                                        // restore_uPC
+// EXIT: 63
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_END_PROC)                                            // endProc
 };
 
 static uint10_t instructionCodeMemory[uPROGRAM_LENGTH] = {
@@ -171,10 +174,10 @@ static void initializeMemory() {
     instructionCodeMemory[NEXT + 3] = (uint10_t){0b0010000000};
     instructionCodeMemory[NEXT + 4] = (uint10_t){0b1111111111};
 
-    instructionCodeMemory[EXIT] = (uint10_t){0b1000000000};
-    instructionCodeMemory[EXIT] = (uint10_t){0b0001111000};
-    instructionCodeMemory[EXIT + 1] = (uint10_t){0b0000000010};
-    instructionCodeMemory[EXIT + 2] = (uint10_t){0b1000000001}; // Y contains the minimum index to be outputted
+    instructionCodeMemory[CLEANUP] = (uint10_t){0b1000000000};
+    instructionCodeMemory[CLEANUP] = (uint10_t){0b0001111000};
+    instructionCodeMemory[CLEANUP + 1] = (uint10_t){0b0000000010};
+    instructionCodeMemory[CLEANUP + 2] = (uint10_t){0b1000000001}; // Y contains the minimum index to be outputted
 
     instructionCodeMemory[STORE] = (uint10_t){0b1010000000};
     instructionCodeMemory[STORE + 2] = (uint10_t){0b1000000000};
@@ -187,8 +190,8 @@ static void initializeMemory() {
     opcodeMemory[PREPARE + 11] = (uint6_t){LSLI};
     opcodeMemory[NEXT] = (uint6_t){DECI};
     opcodeMemory[NEXT + 3] = (uint6_t){CMP};
-    opcodeMemory[EXIT + 1] = (uint6_t){LSLI};
-    opcodeMemory[EXIT + 2] = (uint6_t){OUT};
+    opcodeMemory[CLEANUP + 1] = (uint6_t){LSLI};
+    opcodeMemory[CLEANUP + 2] = (uint6_t){OUT};
     opcodeMemory[STORE + 2] = (uint6_t){DECI};
 }
 
