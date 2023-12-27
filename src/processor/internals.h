@@ -103,7 +103,7 @@ void io();
 
 /* DRIVER */
 void read();
-void request(signal type);
+void request();
 void write();
 void writeBase64();
 

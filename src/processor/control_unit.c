@@ -53,15 +53,9 @@ void CU_handleNextInstruction() {
             break;
 
         case IN:
-            IO_Op = ACTIVE;
-            IO_type = IO_IN;
             str = ACTIVE;
-            io();
-            break;
-
         case OUT:
             IO_Op = ACTIVE;
-            IO_type = IO_OUT;
             io();
             break;
             

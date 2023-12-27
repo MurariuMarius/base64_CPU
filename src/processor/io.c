@@ -1,11 +1,13 @@
 #include <stdio.h>
 
 #include "internals.h"
+#include "opcodes.h"
 
 uint16_t IO_data;
 
 static uint16_t requestedWords;
 static uint16_t wordsProcessed;
+static signal type;
 
 static void input() {
     while (requestedWords > 0) {
@@ -26,18 +28,23 @@ static void output() {
         if (requestedWords == 1) {
             send = INACTIVE;
         }
-        writeBase64();
+        if (type.active) {
+            writeBase64();
+        } else {
+            write();
+        }
     }
 }
 
 void io() {
-    requestedWords = sign_extend_9_to_16_bits();
-    requestedWords %= DATA_MEMORY_SIZE;
+    type = sign_extend_9_to_16_bits() & 1 ? ACTIVE : INACTIVE;
+    requestedWords = 0x01FF & getOperandRegister();
     wordsProcessed = 0;
-    request(IO_type);
-    if (IO_type.active) {
-        output();
-    } else {
-        input();
+    request();
+    switch(getOpcode().val) {
+        case IN:
+            input();
+        case OUT:
+            output();
     }
 }

@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 }
 uint8_t paddingOffset;
 
-void request(signal IO_type) {
+void request() {
     send = ACTIVE;
     paddingOffset = 0;
 }
