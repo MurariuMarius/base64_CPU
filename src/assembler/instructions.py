@@ -185,24 +185,33 @@ class StackInstruction(Instruction):
 
 class IOInstruction(Instruction):
     def __init__(self, instruction):
-        opcode, value = self.__validate(instruction)
+        opcode, requestedWordCountRegister, type = self.__validate(instruction)
 
         super().__init__(IOInstructions.get(opcode))
-        self.value = value
+        self.requestedWordCountRegister = requestedWordCountRegister
+        self.type = type
 
     def __validate(self, instruction):
-        if len(instruction) != 2 or \
-            not instruction[1].isdigit() or \
-            int(instruction[1]) > MEMORY_SIZE or int(instruction[1]) < 0:
+        if len(instruction) != 3 or \
+            instruction[1] not in REGISTERS or \
+            not instruction[2].isdigit() or int(instruction[2]) not in [0, 1]:
             raise InvalidInstructionException(instruction)
-        return instruction[0], int(instruction[1])
+        return instruction[0], REGISTERS[instruction[1]], int(instruction[2])
 
     def __repr__(self) -> str:
-        return super().__repr__() + f"{self.value}"
+        return super().__repr__() + f"{self.requestedWordCountRegister}|{self.type}"
     
     def getBytes(self):
-        result = (self.opcode << 10) | (0x3FF & self.value)
+        result = (self.opcode << 10) | ((0x3 & self.requestedWordCountRegister) << 7) | (0x7F & self.type)
         return bytearray(result.to_bytes(2))
+
+
+class EncodeInstruction(Instruction):
+    def __init__(self):
+        super().__init__(ENC["ENC"])
+
+    def getBytes(self):
+        return bytearray((self.opcode << 10).to_bytes(2))
 
 
 class HaltInstruction(Instruction):

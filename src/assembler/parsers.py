@@ -1,7 +1,7 @@
 import re
 
 from exceptions import LabelAlreadyDefinedException, InvalidOpcodeException
-from instructions import BranchInstruction, MemoryInstruction, ALUInstruction, HaltInstruction, StackInstruction, IOInstruction
+from instructions import *
 import opcodes
 
 class AssemblyFileParser:
@@ -84,6 +84,8 @@ class InstructionParser:
             instruction = ALUInstruction.get(instruction)
         elif opcode in opcodes.IOInstructions:
             instruction = IOInstruction(instruction)
+        elif opcode in opcodes.ENC:
+            instruction = EncodeInstruction()
         elif opcode in opcodes.HLT:
             instruction = HaltInstruction()
         else:

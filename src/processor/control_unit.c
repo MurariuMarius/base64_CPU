@@ -17,6 +17,8 @@ signal ret;
 signal immOp;
 signal IO_type;
 signal IO_Op;
+signal enc;
+signal enc_instr;
 
 
 static void resetSignals() {
@@ -33,26 +35,27 @@ static void resetSignals() {
     ldm = INACTIVE;
     immOp = INACTIVE;
     IO_Op = INACTIVE;
+    enc = INACTIVE;
 }
 
 void CU_handleNextInstruction() {
     resetSignals();
+
+    uint6_t instruction = getOpcode();
     
     switch(instruction.val){
         case HLT:
             end = ACTIVE;
             break;
 
-        case IN:
-            IO_Op = ACTIVE;
-            IO_type = IO_IN;
-            str = ACTIVE;
-            io();
+        case ENC:
+            encode();
             break;
 
+        case IN:
+            str = ACTIVE;
         case OUT:
             IO_Op = ACTIVE;
-            IO_type = IO_OUT;
             io();
             break;
             

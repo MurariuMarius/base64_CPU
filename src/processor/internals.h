@@ -52,9 +52,10 @@ extern uint2_t stackOP;
 extern signal send;
 extern signal IO_type;
 extern signal IO_Op;
+extern signal enc;
+extern signal enc_instr;
 
 /* BUSSES */
-extern uint6_t instruction;
 extern uint16_t IO_data;
 
 /*  INSTRUCTION MEMORY  */
@@ -63,6 +64,7 @@ void initializeInstructionMemory(char *binFile);
 uint16_t readWordFromInstructionMemory(uint16_t index);
 uint10_t getAddressRegisterFromRF();
 uint16_t getAddressRegisterFromPC();
+uint6_t getOpcode();
 
 /*  PROGRAM COUNTER  */
 void nextPC();
@@ -82,19 +84,28 @@ uint16_t getSP();
 uint16_t main_ALU_fcn();
 void checkFlags();
 
-/*  REGISTER FILES  */
+/*  REGISTER FILE  */
 void register_file();
 uint16_t *getSelectedRegister();
 uint16_t sign_extend_9_to_16_bits();
 uint16_t getOperandRegister();
+uint16_t getIndex();
+
+/*  MICROPRORGAM SEQUENCER  */
+uint10_t getInstruction();
+uint6_t getMicroinstructionOpcode();
+
+/*  ENCODER  */
+void encode();
 
 /* IO  */
 void io();
 
 /* DRIVER */
 void read();
-void request(signal type);
+void request();
 void write();
+void writeBase64();
 
 // void initializePC();
 // void testExtendUnit(uint10_t in);

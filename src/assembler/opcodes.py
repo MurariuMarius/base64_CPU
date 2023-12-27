@@ -70,6 +70,10 @@ immediateALUInstructions = {
     "DECI": 0b111111
 }
 
+ENC = {
+    "ENC": 0b011000,
+}
+
 HLT = {
     "HLT": 0b000000
 }

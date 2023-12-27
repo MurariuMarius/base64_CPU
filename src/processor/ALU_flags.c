@@ -11,6 +11,7 @@ int16_t opA;
 int16_t opB;
 signal ZF,NF,CF,OF;
 static int16_t accumulator;
+static uint6_t instruction;
 
 static void setOF()
 {
@@ -96,6 +97,8 @@ uint16_t main_ALU_fcn()
     if (!aluOp.active) {
         return accumulator;
     }
+
+    instruction = getOpcode();
 
     opA = *getSelectedRegister();
     opB = mux();

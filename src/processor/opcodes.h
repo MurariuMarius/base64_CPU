@@ -57,6 +57,8 @@
 #define INCI 0b111110
 #define DECI 0b111111
 
+#define ENC 0b011000
+
 #define HLT 0b000000
 
 #endif

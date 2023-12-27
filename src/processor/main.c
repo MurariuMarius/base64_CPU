@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     }
 
     if (argc == 4) {
-        out = fopen(argv[3], "wb");
+        out = fopen(argv[3], "w+");
     }
 
     initializeInstructionMemory(argv[1]);
@@ -36,24 +36,33 @@ int main(int argc, char **argv) {
     fclose(in);
     fclose(out);
 }
+uint8_t paddingOffset;
 
-void request(signal IO_type) {
-    if (!IO_type.active) {
-        send = ACTIVE;
-    }
+void request() {
+    send = ACTIVE;
+    paddingOffset = 0;
 }
+
+signal incompleteRead;
 
 void read() {
     uint16_t buffer;
-    
-    int wordsRead = fread(&buffer, sizeof(uint16_t), 1, in);
+
+    int wordsRead = fread(&buffer, sizeof(uint8_t), 2, in);
 
     // Convert to big endian ordering
     // (assuming that the machine running the program has little endinan ordering)
-    IO_data = buffer >> 8;
-    IO_data |= (0xFF & buffer) << 8;
+    if (wordsRead == 1) {
+        IO_data = (0xFF & buffer) << 8;
+        incompleteRead = ACTIVE;
+    } else if (wordsRead == 2) {
+        IO_data = buffer >> 8;
+        IO_data |= (0xFF & buffer) << 8;
+        incompleteRead = INACTIVE;
+    }
+    printf("DRVR: incompleteRead: %d\n", incompleteRead.active);
 
-    printf("DRVR: Read %d word(s)\n", wordsRead);
+    printf("DRVR: Read %d byte(s)\n", wordsRead);
     if (wordsRead == 0) {
         send = INACTIVE;
     }
@@ -66,4 +75,78 @@ void write() {
     buffer |= (0xFF & IO_data) << 8;
 
     fwrite(&buffer, sizeof(uint16_t), 1, out);
+}
+
+extern signal receivedZero;
+
+void writeBase64() {
+    // Convert to big endian ordering
+    // (assuming that the machine running the program has little endinan ordering)
+    uint16_t buffer = IO_data >> 8;
+    buffer |= (0xFF & IO_data) << 8;
+
+
+
+    printf("DRVR: Received %x\n", buffer);
+    if (buffer == 0 || (buffer >> 8) == 0) {
+        if (buffer >> 8 == 0 && buffer & 0xFF) {
+            paddingOffset++;
+            paddingOffset %= 4;
+        }
+
+        if (incompleteRead.active) {
+            if (buffer == 0) {
+                fseek(out, -2, SEEK_CUR);
+                fread(&buffer, sizeof(uint8_t), 2, out);
+                
+                printf("DRVR: Retrieved %x\n", buffer);
+
+                if ((buffer >> 8 != 0 && buffer & 0xFF)) {
+                    if (!receivedZero.active || buffer >> 8 != 0x41) {
+                        send = INACTIVE;
+                        if (paddingOffset == 2){
+                            buffer = 0x3d3d;
+                            fwrite(&buffer, sizeof(uint8_t), 2, out);
+                        }
+                        return;
+                    }
+                }
+
+                buffer &= 0xFF;
+                buffer |= 0x3D00;
+                fseek(out, -2, SEEK_CUR);
+            } else {
+
+
+                buffer = 0x3D3D;
+            }
+
+            fwrite(&buffer, sizeof(uint8_t), 2, out);
+            printf("DRVR: Writing 1 byte %x\n", buffer);
+            send = INACTIVE;
+            return;
+        }
+
+
+        printf("DRVR: Padding %d\n", paddingOffset);
+
+        if (paddingOffset == 2){
+            buffer = 0x3d3d;
+            fwrite(&buffer, sizeof(uint8_t), 2, out);
+        } else if (paddingOffset == 3 && buffer != 0) {
+            buffer = 0x3d00 | (buffer & 0xFF);
+            fwrite(&buffer, sizeof(uint8_t), 2, out);
+        }
+
+        send = INACTIVE;
+        return;
+    }
+
+    printf("DRVR: Padding %d\n", paddingOffset);
+
+    paddingOffset += 2;
+    paddingOffset %= 4;
+
+    fwrite(&buffer, sizeof(uint16_t), 1, out);
+    printf("DRVR: Writing 2 bytes %x\n", buffer);
 }
