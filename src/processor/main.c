@@ -104,6 +104,10 @@ void writeBase64() {
                 if ((buffer >> 8 != 0 && buffer & 0xFF)) {
                     if (!receivedZero.active || buffer >> 8 != 0x41) {
                         send = INACTIVE;
+                        if (paddingOffset == 2){
+                            buffer = 0x3d3d;
+                            fwrite(&buffer, sizeof(uint8_t), 2, out);
+                        }
                         return;
                     }
                 }
@@ -129,7 +133,7 @@ void writeBase64() {
         if (paddingOffset == 2){
             buffer = 0x3d3d;
             fwrite(&buffer, sizeof(uint8_t), 2, out);
-        } else if (paddingOffset == 3) {
+        } else if (paddingOffset == 3 && buffer != 0) {
             buffer = 0x3d00 | (buffer & 0xFF);
             fwrite(&buffer, sizeof(uint8_t), 2, out);
         }

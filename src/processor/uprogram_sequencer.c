@@ -27,7 +27,8 @@ static signal *externalContorlSignals[EXTERNAL_CS_COUNT] = {
     &str,
     &lse,
     &aluOp,
-    &enc_instr
+    &enc_instr,
+    &IO_Op
 };
 
 uint3_t conditionSelect;
@@ -99,8 +100,11 @@ static void activateExternalControlSignals() {
         *(externalContorlSignals[i]) = (controlField.val & (1 << i)) ? ACTIVE : INACTIVE;
     }
 
-    if (enc.active) {
+    if (enc.active & ~IO_Op.active) {
         register_file();
+    }
+    if (IO_Op.active) {
+        io();
     }
 }
 

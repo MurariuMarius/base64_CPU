@@ -21,18 +21,22 @@ static void input() {
 }
 
 static void output() {
-    send = ACTIVE;
-    while (requestedWords > 0 && send.active) {
+    uint16_t minimum = type.active ? *getSelectedRegister() : 0;
+
+    while (requestedWords > minimum && send.active) {
         IO_data = load(requestedWords--);
-        printf("IO: Wrote %04x\n", IO_data);
-        if (requestedWords == 1) {
-            send = INACTIVE;
-        }
+        printf("IO: Wrote %04x to go %d (%d)\n", IO_data, requestedWords - minimum, requestedWords);
         if (type.active) {
             writeBase64();
         } else {
             write();
         }
+    }
+
+    // Termitate transmission for base64 output
+    if (type.active) {
+        IO_data = 0;
+        writeBase64();
     }
 }
 
@@ -44,6 +48,7 @@ void io() {
     switch(getOpcode().val) {
         case IN:
             input();
+            break;
         case OUT:
             output();
     }

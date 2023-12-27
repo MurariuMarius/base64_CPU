@@ -34,7 +34,7 @@ typedef struct {
 #define SIG_LSE 0x40
 #define SIG_ALU_OP 0x80
 #define SIG_ENC_INSTR 0x100
-
+#define SIG_IO_OP 0x200
 
 extern uint3_t conditionSelect;
 extern uint8_t branchAddress;
