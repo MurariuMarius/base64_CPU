@@ -58,6 +58,8 @@ static void setOF()
 }
 
 void checkFlags() {
+    instruction = getOpcode();
+
     jmp = INACTIVE;
     if (!br_oth.active) {
         return;
@@ -80,7 +82,7 @@ void checkFlags() {
         case 0b11:
             jmp = OF;
     }
-
+    
     // printf("FLAGS: jmp %d\n", jmp.active);
 }
 
