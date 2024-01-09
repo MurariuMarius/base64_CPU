@@ -39,7 +39,7 @@
 #define CLEANUP 47
 #define PROC_OUTBUS 52
 #define STORE 56
-#define INC_SEL_REG 59
+#define ADV_SEL_REG 59
 #define EXIT 63
 
 #define uPROGRAM_LENGTH 70
@@ -77,31 +77,31 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
     (uint3_t){1}, generateBA(S0),                                                              // if state = 0 go to S0
     (uint3_t){2}, generateBA(S1),                                                              // if state = 1 go to S1
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LD30),                                               // BUFF3[3:0] = R_IN[15:12]
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_LSH4),                                               // lsh4
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LSH4),                                               // LSH R_IN, #4
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
-    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // call outbus
     (uint3_t){7}, generateBA(PUSH),                                                            // go to PUSH
 // S0: 20                      
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_SEL_REG),                                      // reset_sel_reg
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_BUFF_3),                                       // reset_Buff_3
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD52),                                               // ld52
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD52),                                               // BUFF3[5:2] = R_IN[3:0]
     (uint3_t){7}, generateBA(PUSH),                                                            // go to PUSH
 // S1: 24                      
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD10),                                               // ld10
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_LSH2),                                               // lsh2
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD10),                                               // BUFF3[1:0] = R_IN[15:14]
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LSH2),                                               // LSH R_IN, #2
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
-    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // call outbus
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_BUFF_3),                                       // reset_Buff_3
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD54),                                               // ld54
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD54),                                               // BUFF3[5:4] = R_IN[3:2]
 // PSH: 30
-    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD_BUFF),                                            // loadBuffers
+    (uint3_t){0}, generateCF(SIG_NOP, SIG_LD_BUFF),                                            // BUFF1 = R_IN[15:10], BUFF2 = R_IN[9:4]
 // OUTPUT: 31
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
-    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // call outbus
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
-    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // call outbus
 // NEXT: 35
-    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // INC X
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // DEC X
     (uint3_t){0}, generateCF(SIG_ENC | SIG_STR, SIG_NOP),                                      // STR Y, [SP-1]
     (uint3_t){0}, generateCF(SIG_ENC | SIG_LDM, SIG_NOP),                                      // LDR Y, [SP]
     (uint3_t){0}, generateCF(SIG_ENC | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),                   // CMP X, Y
@@ -112,27 +112,27 @@ uInstruction controlMemory[uPROGRAM_LENGTH] = {
     (uint3_t){4}, generateBA(END),                                                             // if ZF = 1 go to END
     (uint3_t){7}, generateBA(BEGIN),                                                           // go to BEGIN
 // END: 44
-    (uint3_t){1}, generateBA(CLEANUP),                                                            // if STATE = 0 go to CLEANUP
+    (uint3_t){1}, generateBA(CLEANUP),                                                         // if STATE = 0 go to CLEANUP
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LOAD_uPC),                                           // load_uPC
-    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // jmp outbus
+    (uint3_t){7}, generateBA(PROC_OUTBUS),                                                     // call outbus
 // CLEANUP: 47
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_LSE, SIG_NOP),                         // MOV X, #120
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // LSL X, #2
     (uint3_t){0}, generateCF(SIG_ENC | SIG_IO_OP | SIG_ENC_INSTR, SIG_NOP),                    // OUT X, 1
     (uint3_t){0}, generateCF(SIG_STACK_OP_POP | SIG_ENC | SIG_IMM_OP | SIG_LDM, SIG_NOP),      // POP Y
-    (uint3_t){7}, generateBA(PREPARE),                                                         // endProc
+    (uint3_t){7}, generateBA(PREPARE),                                                         // go to PREPARE
 // PROC OUTBUS: 52
     (uint3_t){0}, generateCF(SIG_NOP, SIG_LD_ROM),                                             // ld_rom = 1
     (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_SEL_BYTE),                                       // selByte++
     (uint3_t){5}, generateBA(STORE),                                                           // if ~selByte or ZF go to STORE
-    (uint3_t){7}, generateBA(INC_SEL_REG),                                                     // go to INC
+    (uint3_t){7}, generateBA(ADV_SEL_REG),                                                     // go to ADV_SEL_REG
 // STORE: 56
     (uint3_t){0}, generateCF(SIG_ENC | SIG_STR, SIG_STR_R_OUT),                                // STR R_OUT, [Y]
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_R_OUT)    ,                                    // R_OUT = 0 
-    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // INC Y
-// INC_SEL_REG: 59
+    (uint3_t){0}, generateCF(SIG_ENC | SIG_IMM_OP | SIG_ALU_OP | SIG_ENC_INSTR, SIG_NOP),      // DEC Y
+// ADV_SEL_REG: 59
     (uint3_t){0}, generateCF(SIG_NOP, SIG_INC_SEL_REG),                                        // selReg++
-    (uint3_t){6}, generateBA(INC_SEL_REG),                                                     // if selReg = 3 go to INC_SEL_REG
+    (uint3_t){6}, generateBA(ADV_SEL_REG),                                                     // if selReg = 3 go to ADV_SEL_REG
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESET_LD_ROM),                                       // ld_rom = 0
     (uint3_t){0}, generateCF(SIG_NOP, SIG_RESTORE_uPC),                                        // restore_uPC
 // EXIT: 63
