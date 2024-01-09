@@ -85,8 +85,6 @@ void writeBase64() {
     uint16_t buffer = IO_data >> 8;
     buffer |= (0xFF & IO_data) << 8;
 
-
-
     printf("DRVR: Received %x\n", buffer);
     if (buffer == 0 || (buffer >> 8) == 0) {
         if (buffer >> 8 == 0 && buffer & 0xFF) {
@@ -116,37 +114,33 @@ void writeBase64() {
                 buffer |= 0x3D00;
                 fseek(out, -2, SEEK_CUR);
             } else {
-
-
                 buffer = 0x3D3D;
             }
 
             fwrite(&buffer, sizeof(uint8_t), 2, out);
             printf("DRVR: Writing 1 byte %x\n", buffer);
-            send = INACTIVE;
-            return;
+
+        } else {
+            printf("DRVR: Padding %d\n", paddingOffset);
+
+            if (paddingOffset == 2){
+                buffer = 0x3d3d;
+                fwrite(&buffer, sizeof(uint8_t), 2, out);
+            } else if (paddingOffset == 3 && buffer != 0) {
+                buffer = 0x3d00 | (buffer & 0xFF);
+                fwrite(&buffer, sizeof(uint8_t), 2, out);
+            }
         }
+        
+        send = INACTIVE;
 
-
+    } else {
         printf("DRVR: Padding %d\n", paddingOffset);
 
-        if (paddingOffset == 2){
-            buffer = 0x3d3d;
-            fwrite(&buffer, sizeof(uint8_t), 2, out);
-        } else if (paddingOffset == 3 && buffer != 0) {
-            buffer = 0x3d00 | (buffer & 0xFF);
-            fwrite(&buffer, sizeof(uint8_t), 2, out);
-        }
+        paddingOffset += 2;
+        paddingOffset %= 4;
 
-        send = INACTIVE;
-        return;
+        fwrite(&buffer, sizeof(uint16_t), 1, out);
+        printf("DRVR: Writing 2 bytes %x\n", buffer);
     }
-
-    printf("DRVR: Padding %d\n", paddingOffset);
-
-    paddingOffset += 2;
-    paddingOffset %= 4;
-
-    fwrite(&buffer, sizeof(uint16_t), 1, out);
-    printf("DRVR: Writing 2 bytes %x\n", buffer);
 }
