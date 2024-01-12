@@ -1,6 +1,6 @@
-# Base64 Encoding CPU
+# General-Purpose Processor with a Dedicated Base64 Encoding Unit
 
-This program simulates an application-specific instruction set processor (ASIP) that **encodes plaintext into base64**.\
+This program simulates a processor with a specialized unit that **encodes plaintext into base64**.\
 Additionaly, the simulated CPU is fitted with general-purpose functionality such as **memory, branching, stack** and various **ALU operations**.
 
 ## The assembler
@@ -19,7 +19,7 @@ python3 src/assembler/main.py <in.asm>
 2. To compile and run the simulator:
 ```
 make compile
-./simulate <out.bin>
+./simulate <bin_file> [in_file] [out_file]
 ```
 3. To run the entire simulation (steps 1 and 2), assuming `in.asm` is the assembly file:
 ```
